@@ -1,0 +1,162 @@
+/* ═════════════════════════════════════════════════════════
+   HIGHLIGHTS / DNA (Figma node 2968:2141 → Section/Highlights 2613:1322)
+   h=720 w=full，3 slides (Simple/Smart/Sustainable)
+   動態 (comment #4):
+   - sticky 卡屏
+   - 上一張縮小淡出、下一張縮小進場
+   - bg_gradient 從左滑入
+   - title-1 淡入
+═════════════════════════════════════════════════════════ */
+
+.highlights {
+  position: relative;
+  width: 100%;
+  /* 視覺高度 = 恰好一屏：CSS px = 100vh / zoom，確保任何 zoom 下視覺上都不超過 viewport */
+  height: calc(100vh / var(--zoom, 1));
+  background: var(--clr-secondary-10);
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.highlights__sticky {
+  position: sticky;
+  top: 20px;
+  width: 100%;
+  /* 比 section 少 80px，為 header bar(64px) + breathing(16px) 留空間 */
+  height: calc(100vh / var(--zoom, 1) - 80px);
+  overflow: hidden;
+}
+
+.highlights__slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.9s var(--ease-out);
+}
+.highlights__slide:first-child { opacity: 1; }
+.highlights__slide.is-active   { opacity: 1; z-index: 2; }
+.highlights__slide.is-prev     { opacity: 0; z-index: 1; }
+
+/* 背景圖：依 comment #4，新圖從中心「縮小→放大」進場 (0.85→1)，
+   舊圖淡出時同時收縮到中心 (1→0.85)。
+   20px 左右留白由 .highlights section padding 統一處理,圖片本身 fill 容器即可 */
+.highlights__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(0.85);
+  transform-origin: center center;
+  transition: transform 1.2s var(--ease-out);
+  will-change: transform;
+}
+.highlights__slide.is-active .highlights__bg { transform: scale(1); }
+.highlights__slide.is-prev   .highlights__bg { transform: scale(0.85); }
+
+/* bg_gradient：從左滑入的黑色漸層（左側暗、右側透明） */
+.highlights__gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(0,0,0,0.75) 0%,
+    rgba(0,0,0,0.5) 35%,
+    rgba(0,0,0,0) 70%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.95s var(--ease-out);
+  z-index: 2;
+}
+.highlights__slide.is-active .highlights__gradient { transform: translateX(0); }
+
+/* Title-1/2/3：上方淡入 (per Figma latest — title 移到 top-left,約距頂 18%)
+   原本垂直置中,現在改靠上以配合右下角 progress bar 的位置
+   width 800 統一三 slides 的版面寬度 */
+.highlights__title {
+  position: absolute;
+  left: 60px;
+  top: 10%;
+  width: 800px;
+  max-width: calc(100% - 160px);   /* 避免在窄螢幕爆出 */
+  z-index: 3;
+  color: var(--clr-secondary-10);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.8s var(--ease-out) 0.4s,
+              transform 0.8s var(--ease-out) 0.4s;
+}
+.highlights__slide.is-active .highlights__title {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.highlights__title-main {
+  font-family: var(--font-title);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-h2);
+  text-transform: uppercase;
+  width: 100%;
+}
+.highlights__title-sub {
+  font-family: var(--font-title);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-h3);
+  text-transform: capitalize;
+  width: 100%;
+}
+
+/* Progress bar：per Figma latest — 移到右下角 (bottom 60, right ≈ 60, w 160)
+   排版仍為 vertical stack of 3 items；item = label + 黃方塊指標 */
+.highlights__progress {
+  position: absolute;
+  bottom: 10%;
+  right: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 5;
+  width: 160px;
+}
+.highlights__prog-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  height: 24px;
+}
+/* 非 active = 淡黃 #FDFCCA；active = 黃 #FAF054（per Figma tokens） */
+.highlights__prog-label {
+  flex: 1;
+  text-align: right;
+  font-family: var(--font-title);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-h3);
+  text-transform: uppercase;
+  color: var(--clr-primary-50);
+  transition: color var(--dur-fast);
+}
+.highlights__prog-line {
+  width: 8px;
+  height: 8px;
+  background: var(--clr-primary-50);
+  flex-shrink: 0;
+  transition: height var(--dur-fast), background var(--dur-fast);
+}
+.highlights__prog-item.is-active .highlights__prog-label { color: var(--clr-primary-70); }
+.highlights__prog-item.is-active .highlights__prog-line  {
+  height: 24px;
+  background: var(--clr-primary-70);
+}

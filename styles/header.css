@@ -1,0 +1,377 @@
+/* ═════════════════════════════════════════════════════════
+   HEADER (Figma node 56:1057, 89:1520 — latest)
+   - Bar 高度 64px,padding 0 40px,垂直置中
+   - Logo 79×32 outline ALP wordmark (currentColor)
+   - 按鈕區: EN (gray) + Contact Us (yellow) + Hamburger (yellow square)
+   - Bar 保持顯示;Logo / EN / Contact 在開選單時淡出,☰ morph 成 ✕
+   - Menu 黑底由上往下展開 (scaleY origin top) → 完成後 nav 由上而下 cascade fade in
+   - 滾下隱藏 / 滾上顯示 (hero 區除外,由 main.js 控制)
+═════════════════════════════════════════════════════════ */
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  pointer-events: none;
+  /* 不在 base 設 transform,避免它變成 .header__menu (position:fixed 子) 的 containing block;
+     transition 仍可從 none 動到 translateY(-100%),瀏覽器會自動 interpolate */
+  transition: transform 0.4s var(--ease-out);
+}
+.header.is-hidden {
+  transform: translateY(-100%);
+}
+
+/* 黑色 bar 本體 — 64px 高,padding 左右 40px,垂直置中 */
+.header__bar {
+  position: relative;
+  z-index: 2;                              /* 永遠在 menu bg (z:1) 之上 */
+  background: var(--clr-secondary-90);
+  height: 64px;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: auto;
+}
+
+/* ── Logo (79×32 outline ALP)
+   採用 currentColor → 由 logoTone module 偵測下方背景後設 color 切色
+   開選單時淡出 (見下方 .header.is-menu-open 區段) */
+.header__logo {
+  display: block;
+  width: 79px;
+  height: 32px;
+  flex-shrink: 0;
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.25s var(--ease-out),
+              opacity 0.25s var(--ease-out);
+}
+.header__logo:hover { opacity: 0.9; }
+.header__logo svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.header__logo.is-on-light { color: #000; }
+.header__logo.is-on-dark  { color: #fff; }
+
+/* ── Nav 按鈕區 (右側) ── */
+.header__nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.btn-lang,
+.btn-contact,
+.btn-menu {
+  position: relative;
+  height: 40px;
+  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-title);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
+  line-height: 1;
+  letter-spacing: var(--ls-btn);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--clr-secondary-90);
+  cursor: pointer;
+  border: 0;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: opacity 0.25s var(--ease-out), background var(--dur-fast);
+}
+.btn-lang:hover,
+.btn-contact:hover,
+.btn-menu:hover { opacity: 0.85; }
+
+.btn-lang    { background: var(--clr-secondary-50); }   /* gray */
+.btn-contact { background: var(--clr-primary-70); }     /* yellow */
+.btn-menu    {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: var(--clr-primary-70);
+}
+
+/* 漢堡 icon (3 條線) — 開選單時 morph 成 ✕ */
+.btn-menu__icon {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 18px;
+  height: 14px;
+}
+.btn-menu__line {
+  position: absolute;
+  left: 0;
+  width: 18px;
+  height: 2px;
+  background: var(--clr-secondary-90);
+  transform-origin: center;
+  transition: transform 0.3s var(--ease-out), opacity 0.2s var(--ease-out);
+}
+.btn-menu__line:nth-child(1) { top: 0; }
+.btn-menu__line:nth-child(2) { top: 50%; transform: translateY(-50%); }
+.btn-menu__line:nth-child(3) { bottom: 0; }
+
+/* ☰ → ✕ morph (menu open 時) */
+.header.is-menu-open .btn-menu__line:nth-child(1) {
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+}
+.header.is-menu-open .btn-menu__line:nth-child(2) {
+  opacity: 0;
+}
+.header.is-menu-open .btn-menu__line:nth-child(3) {
+  bottom: 50%;
+  transform: translateY(50%) rotate(-45deg);
+}
+
+/* 開選單時隱藏 logo + EN + Contact (per Figma — 只剩 hamburger 變 X);
+   保留 hamburger 的 pointer-events 讓使用者可以點它關閉。 */
+.header.is-menu-open .header__logo,
+.header.is-menu-open .btn-lang,
+.header.is-menu-open .btn-contact {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ═════════ Mega menu panel ═════════
+   黑底由上往下展開 (scaleY origin top) → nav 文字後續 cascade fade in
+   bg 用 ::before 處理動畫,nav 內容自己淡入 */
+.header__menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;                       /* 比 .header__bar (z:2) 低,bar 永遠在上 */
+  pointer-events: none;
+  overflow: hidden;
+}
+.header.is-menu-open .header__menu {
+  pointer-events: auto;
+}
+
+/* 黑色背景 — scaleY 0→1 由上往下展開 */
+.header__menu::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--clr-secondary-90);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.45s var(--ease-out);
+}
+.header.is-menu-open .header__menu::before {
+  transform: scaleY(1);
+}
+
+/* nav 區 — 在 bg 之上 + bar 之下 (在 64px 以下開始) */
+.header__menu-nav {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  max-width: 1100px;
+  gap: 32px;
+  padding: 100px 40px 60px;        /* top 100 = 64 bar + 36 breathing */
+  height: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE/Edge */
+}
+.header__menu-nav::-webkit-scrollbar {
+  display: none;                /* Chrome/Safari */
+}
+
+.menu-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* cascade 進場:bg 展完後文字才依序淡入 (delay > bg duration 0.45s) */
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out);
+  transition-delay: 0s;
+}
+.header.is-menu-open .menu-row {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* nav 從 0.45s (bg 展完) 開始,每行間隔 0.06s
+   注意:這些 delay 在關閉時也會生效,所以關閉時 nav 會反向 cascade fade out
+   (從第一行開始延遲 0.45s 才開始淡出),感覺尚可接受。
+   ※ 不要加 `transition-delay: 0s !important` 試圖讓關閉立即發生,
+     那會壓掉開啟時的 cascade delay,瀏覽器會把 transition 卡住,nav 就不會 fade in。 */
+.header.is-menu-open .menu-row:nth-child(1) { transition-delay: 0.45s; }
+.header.is-menu-open .menu-row:nth-child(2) { transition-delay: 0.51s; }
+.header.is-menu-open .menu-row:nth-child(3) { transition-delay: 0.57s; }
+.header.is-menu-open .menu-row:nth-child(4) { transition-delay: 0.63s; }
+.header.is-menu-open .menu-row:nth-child(5) { transition-delay: 0.69s; }
+.header.is-menu-open .menu-row:nth-child(6) { transition-delay: 0.75s; }
+.header.is-menu-open .menu-row:nth-child(7) { transition-delay: 0.81s; }
+
+/* Primary item (ABOUT / FOOTPRINT / SOLUTION / CASE STUDY ...) */
+.menu-primary {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-title);
+  font-size: 32px;
+  font-weight: var(--fw-regular);
+  line-height: 1.2;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--clr-secondary-10);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
+  align-self: flex-start;
+  transition: color 0.2s var(--ease-out);
+}
+
+/* Hover 規格 (per Figma design system node 15:849):
+   黃色 highlight 鋪在文字後面 (inset 2px 上下,左右貼齊文字 padding),文字變黑。
+   只套用在「無子選單」的項目 — Case Study / Newsroom / Contact / Career;
+   About / Footprint / Solution 是 placeholder 沒有獨立頁,不做 hover (per user) */
+.menu-row:not([data-has-sub]) .menu-primary {
+  padding: 0 4px;
+}
+.menu-row:not([data-has-sub]) .menu-primary::before {
+  content: '';
+  position: absolute;
+  inset: 2px 0;
+  background: var(--clr-primary-70);
+  z-index: -1;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.35s var(--ease-out);
+}
+/* 文字延後到色塊掃過大半時才變黑,視覺上像「色塊畫過再壓黑文字」 */
+.menu-row:not([data-has-sub]) .menu-primary:hover {
+  color: var(--clr-secondary-90);
+  transition: color 0.15s var(--ease-out) 0.2s;
+}
+.menu-row:not([data-has-sub]) .menu-primary:hover::before {
+  transform: scaleX(1);
+}
+
+/* Chevron — desktop 隱藏(子項目永遠展開);mobile 顯示 */
+.menu-chevron {
+  display: none;
+  flex-shrink: 0;
+  transition: transform 0.3s var(--ease-out);
+  color: var(--clr-secondary-10);
+}
+
+/* Submenu (sub items 橫向 row) */
+.menu-sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  padding-left: 0;
+}
+.menu-sub-link {
+  font-family: var(--font-title);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
+  line-height: 1.4;
+  letter-spacing: var(--ls-btn);
+  color: var(--clr-secondary-10);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--dur-fast);
+}
+.menu-sub-link:hover { color: var(--clr-primary-70); }
+.menu-sub-link.is-active { color: var(--clr-primary-70); }
+
+/* ═════════ Mobile / 窄螢幕 (≤1024) — accordion 模式 ═════════
+   - chevron 顯示
+   - submenu 預設收合
+   - 開啟某個 row 時自動收合其它 (由 JS 控制 .is-open)
+   - 一次只開一個(開一關一) */
+@media (max-width: 1024px) {
+  .header__menu-nav {
+    padding: 80px 24px 40px;
+    gap: 4px;
+    max-width: none;
+  }
+  .menu-row {
+    gap: 0;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .menu-row:last-child { border-bottom: 0; }
+
+  .menu-row[data-has-sub="true"] .menu-primary {
+    width: 100%;
+    justify-content: space-between;
+    align-self: stretch;
+  }
+  .menu-chevron { display: block; }
+
+  .menu-row[data-has-sub="true"] .menu-sub {
+    flex-direction: column;
+    gap: 0;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s var(--ease-out), opacity 0.3s var(--ease-out), margin-top 0.3s;
+    margin-top: 0;
+  }
+  .menu-row.is-open[data-has-sub="true"] .menu-sub {
+    max-height: 600px;
+    opacity: 1;
+    margin-top: 16px;
+  }
+  .menu-row.is-open .menu-chevron {
+    transform: rotate(180deg);
+    color: var(--clr-primary-70);
+  }
+  .menu-row.is-open .menu-primary {
+    color: var(--clr-primary-70);
+  }
+  .menu-row.is-open .menu-primary > span {
+    background: var(--clr-primary-70);
+    color: var(--clr-secondary-90);
+    padding: 2px 8px;
+  }
+
+  .menu-sub-link {
+    padding: 10px 0 10px 16px;
+    font-size: 16px;
+  }
+}
+
+/* ≤768 (手機) — 字級再縮 */
+@media (max-width: 768px) {
+  .header__bar { padding: 0 20px; height: 56px; }
+  .header__logo { width: 64px; height: 26px; }
+  .btn-lang,
+  .btn-contact,
+  .btn-menu { height: 36px; }
+  .btn-menu { width: 36px; }
+
+  .header__menu-nav { padding: 70px 20px 32px; }
+  .menu-primary { font-size: 24px; }
+  .menu-sub-link { font-size: 15px; }
+}

@@ -1,0 +1,166 @@
+/* ═════════════════════════════════════════════════════════
+   BANNER / HERO (Figma node 2164:1226)
+   Figma total h=1530 (title 720 + video 810)，我們這邊做成 100vh。
+   Hero_Frame 初始狀態 480×120 @ (341, 258) 會依捲動 scale 到 fullscreen。
+═════════════════════════════════════════════════════════ */
+
+.banner {
+  position: relative;
+  width: 100%;
+  /* 總高 = 1 屏視覺 + 0.5 屏放大行程；真正視覺由 .banner__stage sticky 呈現 */
+  height: 150vh;
+  min-height: 900px;
+  background: var(--clr-secondary-90);
+}
+
+.banner__stage {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  min-height: 600px;
+  overflow: hidden;
+  background: var(--clr-secondary-90);
+}
+
+/* ── 文字區塊 ──
+   Figma "LEADING" @ (40, 320) 於 720 高的 title 區 → Y = 44.44%。 */
+.banner__text {
+  position: absolute;
+  top: 44.44%;
+  left: 40px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.banner__line {
+  font-family: var(--font-title);
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-h1);
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(16px);
+  will-change: opacity, transform;
+}
+.banner__line.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--dur-base) var(--ease-out),
+              transform var(--dur-base) var(--ease-out);
+}
+.banner__line--white { color: var(--clr-secondary-10); }
+
+/* line2 包在 .banner__hl-wrap 裡，下面有黃色 highlight；文字置於 z-index: 2 */
+.banner__hl-wrap {
+  position: relative;
+  display: inline-block;
+  margin-top: 8px;
+}
+.banner__line--dark {
+  position: relative;
+  z-index: 2;
+  color: var(--clr-secondary-90);
+  /* 黃底內文字用 line-height:1 讓黃底緊貼字（全站 H1 黃底一致規則） */
+  line-height: 1;
+}
+
+/* Banner 的黃色螢光筆：使用共用 .hl-bar，並延伸到文字右邊 11px（per Figma inset 0 -11 0 0） */
+.banner__hl-wrap .hl-bar {
+  left: -2px;
+  right: -11px;
+  /* 其他屬性繼承 base.css .hl-bar */
+}
+
+/* ── Hero_Frame ──
+   初始：480×120 @ (341, 258) in 1440×(720) design
+   最終：覆滿整個 banner
+   位置由 JS 用 inline style 控制。CSS 只定義預設 / 過渡。 */
+.banner__hero-frame {
+  position: absolute;
+  overflow: hidden;
+  z-index: 4;
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+  will-change: top, left, width, height, opacity;
+}
+.banner__hero-frame.is-visible { opacity: 1; }
+
+.banner__hero-frame video {
+  width: 100%;
+  height: 160px;  /* hero_image 在 Hero_Frame 溢出 20px 上下，JS 會設定 */
+  object-fit: cover;
+  display: block;
+}
+
+/* Fullscreen 後 video 應該 fill 100% height */
+.banner__hero-frame.is-fullscreen video {
+  height: 100%;
+}
+
+/* ── Scroll hint ── */
+.banner__scroll-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--clr-overlay-caption);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.5s;
+  z-index: 10;
+  pointer-events: none;
+}
+.banner__scroll-hint .arrow {
+  display: block;
+  margin-top: 6px;
+  animation: arrowBounce 1.6s ease-in-out infinite;
+}
+@keyframes arrowBounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(6px); }
+}
+
+/* ── Video pause button (Figma node 47:6545) ──
+   40×40, gray bg + backdrop blur, 黑 icon。
+   只在 hero fullscreen 後出現 (.is-visible 由 JS 加)。 */
+.banner__pause {
+  position: absolute;
+  left: 40px;
+  bottom: 40px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(213, 213, 213, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--clr-secondary-90);
+  z-index: 11;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease-out), background 0.2s;
+}
+.banner__pause.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.banner__pause:hover {
+  background: rgba(213, 213, 213, 0.85);
+}
+.banner__pause-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+.banner__pause-icon--play { display: none; }
+.banner__pause.is-paused .banner__pause-icon--pause { display: none; }
+.banner__pause.is-paused .banner__pause-icon--play  { display: block; }

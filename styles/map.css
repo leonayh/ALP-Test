@@ -1,0 +1,203 @@
+/* ═════════════════════════════════════════════════════════
+   MAP (Figma node 2921:8091)
+   h 920 w 1440
+   - map img @ (553, 261, 767×485)
+   - content @ (40, 140, 878) flex-col gap 40
+     - title: "Rooted in Asia / Bound for the World"
+     - desc H3 20
+     - Global Footprint button h 60 px 40
+   動態 #8：map fade-in (降級版，等分層素材再升級)
+═════════════════════════════════════════════════════════ */
+
+.map {
+  position: relative;
+  width: 100%;
+  min-height: 920px;
+  background: var(--clr-secondary-10);
+  overflow: hidden;
+}
+
+.map__img {
+  position: absolute;
+  top: 50%;
+  right: 40px;
+  transform: translateY(-50%);
+  width: calc(767 / 1440 * 100%);  /* 53.27% → 保 Figma 比例 */
+  max-width: 920px;
+  aspect-ratio: 767 / 485;
+  z-index: 1;
+}
+.map__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* ───── 三層動畫 ─────
+   Phase A (0→1s): bg + Taiwan label fade in
+   Phase B (0.5→1.5s): 其他 4 國 label fade in
+   Phase C (1→2s): lines clip-path 從 Taiwan 向外展開 */
+.map__layer {
+  position: absolute;
+  inset: 0;
+}
+
+.map__layer--bg {
+  opacity: 0;
+  transition: opacity 1s var(--ease-out);
+  z-index: 1;
+}
+.map__img.is-visible .map__layer--bg { opacity: 1; }
+
+/* lines 在 bg 上、dots 在 lines 上 */
+.map__layer--labels {
+  pointer-events: none;
+  z-index: 3;
+}
+
+.map__label {
+  position: absolute;
+  font-family: var(--font-title);
+  font-weight: var(--fw-regular);
+  color: var(--clr-secondary-90);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 1s var(--ease-out);
+  letter-spacing: var(--ls-h3);
+  line-height: 1.2;
+}
+.map__label--taiwan { font-size: 20px; font-weight: var(--fw-medium); }
+.map__label--country { font-size: 14px; }
+
+.map__img.is-visible .map__label--taiwan  { opacity: 1; transition-delay: 0s; }
+.map__img.is-visible .map__label--country { opacity: 1; transition-delay: 0.5s; }
+
+/* Country dots：Taiwan 黃色 28×28、其他 4 國灰色 15×15
+   width/height 用不同 % 以符合 767×485 frame 的像素正方 */
+.map__dot {
+  position: absolute;
+  /* zero border-radius — 全品牌一致的精準工程語彙 */
+  opacity: 0;
+  transition: opacity 1s var(--ease-out);
+}
+.map__dot--taiwan {
+  width: calc(28 / 767 * 100%);   /* 3.65% */
+  height: calc(28 / 485 * 100%);  /* 5.77% */
+  background: var(--clr-secondary-90);
+}
+.map__dot--country {
+  width: calc(15 / 767 * 100%);   /* 1.96% */
+  height: calc(15 / 485 * 100%);  /* 3.09% */
+  background: var(--clr-primary-70);
+}
+.map__img.is-visible .map__dot--taiwan  { opacity: 1; transition-delay: 0s; }
+.map__img.is-visible .map__dot--country { opacity: 1; transition-delay: 0.5s; }
+
+/* lines layer 容器：定位對齊 lines svg 在 map frame 的位置
+   原圖尺寸 838×566 @(-21,-28) 相對 767×485 map frame */
+.map__layer--lines {
+  left: calc(-21 / 767 * 100%);
+  top:  calc(-28 / 485 * 100%);
+  right: auto; bottom: auto;
+  width:  calc(838 / 767 * 100%);
+  height: calc(566 / 485 * 100%);
+  z-index: 2;
+}
+.map__lines-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+/* 線條描繪動畫：從台灣端（M 端）往外輻射，慢慢顯現
+   dasharray=320 蓋過最長的線 (~302)，offset 從 320 → 0
+   調整：時間從 1.4s 拉長到 2.6s、stagger 從 0.15s 拉到 0.4s
+   — 讓線條「慢慢」一條一條畫出，更貼近沉穩工程感 */
+.map__line {
+  stroke-dasharray: 320;
+  stroke-dashoffset: 320;
+  transition: stroke-dashoffset 2.6s var(--ease-out);
+  transition-delay: 2s;          /* 與 dots / labels 出現後接續 */
+}
+.map__img.is-visible .map__line {
+  stroke-dashoffset: 0;
+}
+/* 4 條線 stagger 0.4s，讓視覺上像「依序展開到各國家」 */
+.map__img.is-visible .map__line:nth-child(1) { transition-delay: 2.0s; }
+.map__img.is-visible .map__line:nth-child(2) { transition-delay: 2.4s; }
+.map__img.is-visible .map__line:nth-child(3) { transition-delay: 2.8s; }
+.map__img.is-visible .map__line:nth-child(4) { transition-delay: 3.2s; }
+
+.map__text {
+  position: relative;
+  z-index: 2;
+  padding: 140px 40px 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  align-items: flex-start;
+  max-width: 920px;
+}
+
+.map__title-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+/* 兩行 H1 各自有黃底 */
+.map__title-line {
+  position: relative;
+  display: inline-block;
+  align-self: flex-start;
+  padding: 2px 0;
+}
+.map__title-line .map__title-text {
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+}
+.map__title-line .hl-bar {
+  /* 使用共用的 hl-bar，.is-visible 時 scaleX 到 1 */
+}
+
+.map__title-text {
+  font-family: var(--font-title);
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-h1);
+  text-transform: uppercase;
+  color: var(--clr-secondary-90);
+  white-space: nowrap;
+}
+/* 第一行 "ROOTED IN ASIA" 不需要黃底 */
+.map__title-line--no-hl .hl-bar { display: none; }
+
+.map__desc {
+  font-family: var(--font-title);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-h3);
+  color: var(--clr-secondary-90);
+}
+
+.map__btn {
+  height: 60px;
+  padding: 8px 40px;
+  background: var(--clr-secondary-90);
+  color: var(--clr-secondary-10);
+  font-family: var(--font-title);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
+  line-height: 1;
+  letter-spacing: var(--ls-btn);
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background var(--dur-fast);
+}
+.map__btn:hover { background: #222; }

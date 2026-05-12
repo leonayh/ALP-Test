@@ -1,0 +1,81 @@
+/* ═════════════════════════════════════════════════════════
+   Base reset + typography defaults
+═════════════════════════════════════════════════════════ */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
+  -webkit-text-size-adjust: 100%;
+  overflow-x: clip;
+}
+
+body {
+  min-width: 320px;
+  background: var(--clr-secondary-10);
+  color: var(--clr-secondary-90);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-body);
+  overflow-x: clip;
+}
+
+img, svg, video {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Utility: scroll-reveal base states ─────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s var(--ease-out),
+              transform 0.7s var(--ease-out);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Utility: yellow highlight bar ───────────────────
+   Used wherever we have "text + yellow block behind it".
+   The bar wraps the text and animates from 0 → target width
+   when JS adds .is-visible. Default target is 100% of text wrap. */
+.hl-bar {
+  position: absolute;
+  inset: 0;
+  background: var(--clr-primary-70);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 1s var(--ease-out);
+  will-change: transform;
+  z-index: 0;
+  pointer-events: none;
+}
+.hl-bar.is-visible { transform: scaleX(1); }
+
+/* Ensure text sits above its highlight */
+.hl-text {
+  position: relative;
+  z-index: 1;
+}

@@ -1,0 +1,187 @@
+/* ═════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   Desktop 基準 1440；其它尺寸往下縮
+═════════════════════════════════════════════════════════ */
+
+/* ══ ≤ 1280（大筆電） ══════════════════════════════════ */
+@media (max-width: 1280px) {
+  :root {
+    --fs-display: 80px;
+    --fs-h1: 48px;
+    --fs-h2: 32px;
+    --fs-h3: 18px;
+  }
+  .kpi { padding: 100px 32px 24px; gap: 80px; }
+  .kpi__number { font-size: 80px; }
+  .kpi__plus { font-size: 30px; }
+  .news { padding: 100px 32px; }
+  .solution { padding: 0 32px; }
+  .cta { padding: 140px 32px; }
+}
+
+/* ══ ≤ 1024（平板） ═══════════════════════════════════ */
+@media (max-width: 1024px) {
+  :root {
+    --fs-display: 64px;
+    --fs-h1: 40px;
+    --fs-h2: 28px;
+    --fs-h3: 16px;
+  }
+  .kpi__row { flex-wrap: wrap; gap: 40px; }
+  .kpi__col { flex: 0 0 calc(50% - 20px); }
+  .news__card--main { width: 58%; }
+  .news__card--main,
+  .news__card--sm { height: auto; aspect-ratio: 16/10; }
+  .map__text { padding: 100px 32px; }
+  .cta { padding: 120px 24px; }
+
+  /* Solution：Figma 沒給 tablet 設計稿，這個區段在雙欄會擠成柱狀，
+     提早改成單欄全寬版面，避開 768–1024 中間段的爆版 */
+  .solution__inner { flex-direction: column; gap: 0; }
+  .solution__title-col {
+    position: relative;
+    top: auto;
+    width: 100%;
+    padding: 80px 0 32px;
+  }
+  .solution__content { width: 100%; padding: 0 0 60px; gap: 60px; }
+}
+
+/* ══ ≤ 768（手機） ═══════════════════════════════════ */
+@media (max-width: 768px) {
+  :root {
+    --fs-display: 56px;
+    --fs-h1: 36px;
+    --fs-h2: 24px;
+    --fs-h3: 14px;
+    --fs-body: 14px;
+    --fs-caption: 12px;
+  }
+
+  /* Header */
+  .header { padding: 16px 16px 0; }
+  .header__logo { width: 70px; height: 38px; }
+  .btn-lang,
+  .btn-contact { height: 36px; padding: 6px 10px; font-size: 13px; }
+  .btn-menu { width: 36px; height: 36px; }
+  .header__nav-accent { display: none; }
+
+  /* Banner */
+  .banner__text { top: 30%; left: 20px; right: 20px; }
+  .banner__line { font-size: 36px; }
+  .banner__hl { right: -6px; }
+  .banner__scroll-hint { bottom: 20px; }
+
+  /* KPI */
+  .kpi { padding: 60px 20px 20px; gap: 40px; }
+  .kpi__title-line { font-size: 32px; white-space: normal; }
+  .kpi__row { flex-direction: column; gap: 28px; }
+  .kpi__col { flex: 1 1 auto; width: 100%; height: auto; }
+  .kpi__number { font-size: 56px; }
+  .kpi__plus { font-size: 22px; }
+
+  /* Highlights */
+  .highlights { height: auto; }
+  .highlights__slide {
+    position: relative;
+    top: auto;
+    height: 480px;
+    opacity: 1;
+    margin-bottom: 8px;
+  }
+  .highlights__slide .highlights__title {
+    opacity: 1;
+    transform: translateY(-50%);
+    left: 24px;
+    right: 24px;
+    gap: 12px;
+  }
+  .highlights__slide .highlights__gradient { transform: translateX(0); }
+  .highlights__slide .highlights__bg { transform: scale(1); }
+  .highlights__title-main { font-size: 24px; }
+  .highlights__title-sub  { font-size: 14px; }
+  .highlights__progress {
+    top: auto;
+    bottom: 24px;
+    transform: none;
+    right: 20px;
+    width: auto;
+    gap: 8px;
+  }
+  .highlights__slide:not(:first-child) .highlights__progress { display: none; }
+  .highlights__prog-label { font-size: 13px; }
+
+  /* Solution（layout 已在 1024 處理，這裡只縮 padding/間距/卡片高） */
+  .solution { padding: 0 20px; }
+  .solution__title-col { padding: 60px 0 24px; }
+  .solution__content { padding: 0 0 48px; gap: 48px; }
+  .solution__tab-header { gap: 12px; }
+  .solution__tab-bar { width: 4px; }
+  .solution__heading { font-size: 22px; }
+  .solution__cards { height: 280px; gap: 6px; }
+  .solution__card-label { font-size: 18px; }
+
+  /* News */
+  .news { padding: 60px 20px; }
+  .news__header { flex-direction: column; align-items: flex-start; gap: 20px; }
+  .news__btn { height: 44px; padding: 8px 24px; font-size: 13px; }
+  .news__cards { flex-direction: column; }
+  .news__card--main { width: 100%; height: 260px; }
+  .news__side { width: 100%; }
+  .news__card--sm { height: 220px; }
+  .news__card-title { font-size: 15px; }
+
+  /* Map */
+  .map { min-height: 0; }
+  .map__img { position: relative; top: auto; right: 0; transform: none; width: 100%; margin-top: 20px; }
+  .map__text { padding: 60px 20px 0; }
+  .map__title-text { font-size: 32px; white-space: normal; }
+  .map__btn { height: 44px; padding: 8px 24px; font-size: 13px; }
+
+  /* CTA */
+  .cta { padding: 80px 20px; }
+  .cta__inner { gap: 24px; }
+  .cta__headline-text { font-size: 28px; }
+  .cta__btns { flex-direction: column; gap: 12px; width: 100%; }
+  .cta__btn { width: 100%; height: 48px; font-size: 13px; }
+
+  /* Footer */
+  .footer { padding: 32px 20px; gap: 40px; }
+  .footer__top { flex-direction: column; gap: 24px; align-items: flex-start; }
+  .footer__logo { width: 160px; height: auto; }
+  .footer__link { font-size: 18px; line-height: 22px; }
+  .footer__bottom { flex-direction: column; gap: 16px; align-items: flex-start; }
+  .footer__social,
+  .footer__policy { flex-wrap: wrap; gap: 12px; }
+  .footer__copy { text-align: left; align-self: flex-start; }
+}
+
+/* ══ ≤ 480（小手機） ═════════════════════════════════ */
+@media (max-width: 480px) {
+  .banner__line { font-size: 28px; }
+  .kpi__number { font-size: 48px; }
+  .kpi__plus { font-size: 18px; }
+  .kpi__title-line { font-size: 28px; }
+  .solution__cards { height: 240px; }
+  .news__card--main { height: 200px; }
+  .news__card--sm { height: 180px; }
+}
+
+/* ══ ≥ 1512（寬螢幕修正） ════════════════════════════
+   Hero frame 在較寬的視窗下視覺上偏右，往左補正 15px
+   使初始狀態與大標基線校準（per design review @ 1512px）
+   進入 fullscreen 後（已蓋滿視窗）不再位移，避免漏邊。
+   注意：1440+ 以上整頁透過 main.js 的 fluidScaleModule
+   做 body zoom 等比放大，這條補正在 zoom 前的 CSS 座標空間內生效。 */
+@media (min-width: 1512px) {
+  .banner__hero-frame.is-visible:not(.is-fullscreen) {
+    transform: translateX(-15px);
+  }
+}
+
+/* ══ ≥ 1440（fluid scale up to 1920） ════════════════
+   1440 → 1920 之間整頁等比放大 (Option B)，
+   實際縮放交給 main.js fluidScaleModule 用 body.zoom 處理。
+   原因：純 CSS 沒有跨瀏覽器穩定的「length/length 求 unitless」算法，
+   而 transform: scale() 會破壞 position:sticky。
+   1920 以上鎖在 1.3333x 不再放大。 */

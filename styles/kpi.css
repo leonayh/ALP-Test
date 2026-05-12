@@ -1,0 +1,120 @@
+/* ═════════════════════════════════════════════════════════
+   KPI (Figma node 2164:1234)
+   pt 140 pb 28 px 40, flex-col gap 100
+   4 欄 w: 137 / 190 / 295 / 306
+═════════════════════════════════════════════════════════ */
+
+.kpi {
+  padding: 140px 40px 28px;
+  background: var(--clr-secondary-10);
+  display: flex;
+  flex-direction: column;
+  gap: 100px;
+}
+
+.kpi__title {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.kpi__title-line {
+  font-family: var(--font-title);
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-h1);
+  text-transform: uppercase;
+  color: var(--clr-secondary-90);
+  white-space: nowrap;
+}
+
+/* "Logistics Advantage" 的黃底：inset 0 貼合 line-height box */
+.kpi__hl-wrap {
+  position: relative;
+  display: inline-block;
+  align-self: flex-start;
+  padding: 2px 0;
+}
+.kpi__hl-wrap .kpi__title-line {
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+}
+
+.kpi__row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+  gap: 24px;
+}
+
+.kpi__col {
+  display: flex;
+  align-items: flex-end;
+  height: 96px;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+/* number + 上標"+" 的容器，整體靠 col 底部，內部 "+" 黏著數字頂部 */
+.kpi__num {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+.kpi__number {
+  font-family: var(--font-title);
+  font-size: var(--fs-display);   /* 100px */
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-tight);   /* 1.1 */
+  letter-spacing: -0.02em;
+  color: var(--clr-secondary-90);
+  white-space: nowrap;
+}
+
+/* 上標式 "+"：尺寸貼齊 Figma icon h-38 */
+.kpi__plus {
+  font-family: var(--font-title);
+  font-size: 38px;
+  font-weight: var(--fw-regular);
+  line-height: 1;
+  color: var(--clr-secondary-90);
+  margin-left: 2px;
+  margin-top: 4px;
+}
+
+.kpi__unit {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-left: 12px;
+  padding-top: 10px;
+  padding-bottom: 16px;
+  height: 100%;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-body);
+  color: var(--clr-secondary-90);
+  white-space: nowrap;
+}
+/* Top label (SQM, USD) — uppercase abbreviation per Figma */
+.kpi__unit-top {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
+  text-transform: uppercase;
+}
+/* Bottom label — sentence case per Figma (countries / targeted, Logistics portfolio / area in Asia, etc.) */
+.kpi__unit-bot {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
+}
+
+/* 3/4 欄縮短文字左 padding（Figma pl-10） */
+.kpi__col--with-plus .kpi__unit {
+  padding-left: 10px;
+}

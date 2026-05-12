@@ -1,0 +1,64 @@
+/* ═════════════════════════════════════════════════════════
+   Design Tokens — 從 Figma 直接轉出
+   來源：Figma file TcWVxG7J06yV1wkM28XvHO / node 2822:8168
+═════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Colors (對齊 Figma 色票 node 2002:10 / 2002:14) ──── */
+  --clr-primary-90:     #e6d700;         /* primary/90 深黃 */
+  --clr-primary-70:     #faf054;         /* primary/70 黃色主強調（螢光筆） */
+  --clr-primary-50:     #fdfcca;         /* primary/50 淡黃（非 active 狀態） */
+  --clr-secondary-90:   #000000;         /* secondary/90 純黑 */
+  --clr-secondary-80:   #4a4a4a;         /* secondary/80 次要文字 */
+  --clr-secondary-70:   #585858;         /* secondary/70 caption 灰 */
+  --clr-secondary-50:   #d5d5d5;         /* secondary/50 logo 灰 */
+  --clr-secondary-30:   #ececec;         /* secondary/30 news date 灰 */
+  --clr-secondary-20:   #f5f5f5;         /* secondary/20 news card bg */
+  --clr-secondary-10:   #ffffff;         /* secondary/10 純白 */
+
+  --clr-overlay-dark:    rgba(0,0,0,0.4);
+  --clr-overlay-light:   rgba(255,255,255,0.2);
+  --clr-overlay-caption: rgba(255,255,255,0.35);
+
+  /* ── Typography ────────────────────────────────────── */
+  /* Figma: Font/Title = Outfit, Font/Body = Avenir（商用字體，web 用 Nunito Sans 當替代） */
+  --font-title: 'Outfit', 'Arial Black', sans-serif;
+  --font-body:  'Avenir Next', 'Avenir', 'Nunito Sans', system-ui, -apple-system, sans-serif;
+
+  --fs-display: 100px;    /* KPI 大數字 */
+  --fs-h1:      60px;
+  --fs-h2:      40px;
+  --fs-h3:      20px;
+  --fs-body:    15px;
+  --fs-caption: 14px;
+  --fs-btn:     15px;
+
+  --fw-regular: 300;
+  --fw-medium:  400;
+  --fw-bold:    600;
+
+  --lh-tight:   1.1;
+  --lh-normal:  1.2;
+  --lh-relaxed: 1.6;
+
+  --ls-h1:      1.2px;
+  --ls-h2:      0.8px;
+  --ls-h3:      0.4px;
+  --ls-body:    0.15px;
+  --ls-btn:     0.6px;
+
+  /* ── Layout ────────────────────────────────────────── */
+  --design-width: 1440px;
+  --page-pad-x:   40px;            /* 主要 section 左右留白 */
+  --page-pad-x-lg: 80px;
+
+  --section-gap:  140px;           /* 大區塊間距 */
+  --section-gap-sm: 80px;
+
+  /* ── Motion ────────────────────────────────────────── */
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast:    0.3s;
+  --dur-base:    0.6s;
+  --dur-slow:    0.9s;
+}

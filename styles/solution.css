@@ -1,0 +1,244 @@
+/* ═════════════════════════════════════════════════════════
+   SOLUTION (Figma node 2271:995)
+   flex items-start justify-between, px 40
+   左 sticky title (Explore / Solution) + 右 w 860 pt 140 pb 40 gap 80
+   每 tab 內：title (8px 黃 bar + subtitle + heading) + cards (gap 8 h 480)
+   hover: card img scale 1.1 (comment #6)
+═════════════════════════════════════════════════════════ */
+
+.solution {
+  padding: 0 40px;
+  background: var(--clr-secondary-10);
+}
+
+.solution__inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 80px;
+  width: 100%;
+}
+
+/* ── Sticky 左標題 (comment #5: title sticky) ── */
+.solution__title-col {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  flex-shrink: 0;
+  width: clamp(240px, 24vw, 360px);
+  padding: 140px 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.solution__sticky-line {
+  font-family: var(--font-title);
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-h1);
+  text-transform: uppercase;
+  color: var(--clr-secondary-90);
+  white-space: nowrap;
+}
+/* 黃底內的 SOLUTION 用 line-height:1 讓黃底緊貼字，EXPLORE 保持 1.2 原本行距 */
+.solution__sticky-hl-wrap .solution__sticky-line {
+  line-height: 1;
+}
+.solution__sticky-hl-wrap {
+  position: relative;
+  display: inline-block;
+  /* 父層是 flex-col，預設 align-items:stretch 會把子項拉滿欄寬，要手動縮回文字寬 */
+  align-self: flex-start;
+  padding: 2px 0;
+}
+.solution__sticky-hl-wrap .solution__sticky-line {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── 右側 Content ── */
+.solution__content {
+  width: 860px;
+  max-width: 100%;
+  padding: 140px 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 120px;
+  flex: 1;
+  min-width: 0;
+}
+
+.solution__tab {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.solution__tab-header {
+  display: flex;
+  padding-left: 0;
+}
+.solution__tab-text {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+.solution__subtitle {
+  font-family: var(--font-title);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-h3);
+  color: var(--clr-secondary-70);
+  text-transform: none;
+}
+.solution__heading {
+  font-family: var(--font-title);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-h2);
+  color: var(--clr-secondary-90);
+  text-transform: uppercase;
+}
+
+/* ── Cards ── */
+.solution__cards {
+  display: flex;
+  gap: 8px;
+  height: 480px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.solution__card {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  /* Figma: items-start justify-center pt-80 pb-20 px-20 — 標籤靠卡片頂端 */
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 80px 20px 20px;
+  box-sizing: border-box;
+}
+.solution__card img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;   /* 預設居中，個別圖下方再覆寫 */
+  transition: transform 0.8s var(--ease-out);
+  will-change: transform;
+}
+.solution__card:hover img { transform: scale(1.1); }
+
+/* 個別卡片裁切焦點微調（focal point）— 卡片是直幅容器，
+   橫幅圖會被左右大幅裁切，需把焦點固定在主體位置 */
+.solution__card img[alt="Omega"]        { object-position: center 60%; }     /* 主視覺在下方建築入口 */
+.solution__card img[alt="Industry Hub"] { object-position: center bottom; }  /* 商品在下半部 */
+.solution__card img[alt="O-Link"]       { object-position: 38% center; }     /* 機器人偏左中下 */
+.solution__card img[alt="ALPOS"]        { object-position: 30% center; }     /* 主元素偏左 */
+.solution__card img[alt="Q-Silver"]     { object-position: center center; }  /* 直幅圖本身就吃滿 */
+.solution__card img[alt="Mini Mega"]    { object-position: center center; }  /* 透視中心點 */
+.solution__card img[alt="ALP Park"]     { object-position: center 35%; }     /* 主建築在上半部 */
+
+.solution__card-label {
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-title);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-h2);
+  text-transform: uppercase;
+  color: var(--clr-secondary-10);
+  text-align: center;
+  padding: 0 20px;
+}
+
+/* ── Reveal animation (per Figma node 2346:7088 → 2979:2192) ──
+   三段時序（per card，相對於該卡 stagger 起點）：
+     phase A  t=0   → 0.2s   2px 線從左邊長出到滿卡寬（橫向展開）
+     phase B  t=0.2 → 1.2s   2px 滿寬線 hold（停留 1.4s）
+     phase C  t=1.2 → 2s  clip-path 向下展開到全圖（縱向展開）
+     label    t=2s         label 開始淡入（0.4s）
+   同排卡片由左→右 stagger 0.4s。
+   實作：用 @keyframes 統一描述三段時序，動畫總長 2s。 */
+
+.solution__card { --stagger: 0s; }
+.solution__cards .solution__card:nth-child(2) { --stagger: 0.4s; }
+.solution__cards .solution__card:nth-child(3) { --stagger: 0.8s; }
+
+/* keyframes 的 % 換算（總長 2s）：
+     0%    = t=0     完全不可見（右側 100% 裁、只露 2px 高度）
+     21%   = t≈0.6s  2px 滿寬線完成
+     70%   = t≈2.0s  hold 結束
+     100%  = t=2s 全圖顯示 */
+@keyframes solutionCardReveal {
+  0% {
+    clip-path: inset(0 100% calc(100% - 2px) 0);
+  }
+  21% {
+    clip-path: inset(0 0 calc(100% - 2px) 0);
+  }
+  70% {
+    clip-path: inset(0 0 calc(100% - 2px) 0);
+  }
+  100% {
+    clip-path: inset(0);
+  }
+}
+
+/* 圖片本體：未進場時保持「完全不可見」狀態（右側 100% 裁），
+   .is-revealed 時觸發 keyframes 動畫 */
+.solution__card img {
+  clip-path: inset(0 100% calc(100% - 2px) 0);
+}
+.solution__card.is-revealed img {
+  animation: solutionCardReveal 1.6s var(--ease-out) forwards;
+  animation-delay: var(--stagger);
+}
+
+/* ── Gray-100 遮罩：2px 線期間覆蓋照片，向下展開時淡出 ──
+   z-index 1 = 照片之上、label(z:2) 之下
+   animation-fill-mode: both → backwards 讓 stagger delay 期間遮罩已顯示，
+                                forwards  讓動畫結束後遮罩保持透明 */
+.solution__mask {
+  position: absolute;
+  inset: 0;
+  background: var(--clr-secondary-20);  /* gray-100 #f5f5f5 */
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes solutionMaskFade {
+  0%   { opacity: 1; }  /* phase A 開始：遮罩不透明 */
+  70%  { opacity: 1; }  /* phase B 結束：遮罩維持不透明 */
+  100% { opacity: 0; }  /* phase C 結束：遮罩全透明，全彩照片顯現 */
+}
+
+.solution__card.is-revealed .solution__mask {
+  animation: solutionCardReveal 1.6s var(--ease-out) both,
+             solutionMaskFade   1.6s var(--ease-out) both;
+  animation-delay: var(--stagger), var(--stagger);
+}
+
+/* label 在動畫接近完成時才淡入
+   時序：stagger + 1.6s 開始（圖片縱向展開到一半時） */
+.solution__card-label {
+  opacity: 0;
+  transition: opacity 1s var(--ease-out);
+  transition-delay: var(--stagger);
+}
+.solution__card.is-revealed .solution__card-label {
+  opacity: 1;
+  transition-delay: calc(var(--stagger) + 1.6s);
+}
