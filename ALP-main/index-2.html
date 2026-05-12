@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hero V2 — ALP</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ═════════════════════════════════════════════════════════
+       Hero V2 (Figma node 148:7618)
+       - 1440 × 740 設計，影片全 bleed + 文字疊在左上區
+       - 進站動態：影片 fade-in 後 in-place 播放(不做 scroll-expand)
+       - title intro: LEADING 淡入 → 黃底 scaleX 0→1 → INDUSTRY-LEVEL CHANGE 淡入
+       - 暫停鈕在左下,點擊可暫停 / 繼續播放
+    ═════════════════════════════════════════════════════════ */
+
+    /* tokens（與主站 tokens.css 一致，方便日後整並） */
+    :root {
+      --clr-primary-70:   #faf054;
+      --clr-secondary-90: #000000;
+      --clr-secondary-50: #d5d5d5;
+      --clr-secondary-10: #ffffff;
+      --font-title:       'Outfit', 'Arial Black', sans-serif;
+      --fs-h1:            60px;
+      --ls-h1:            1.2px;
+      --ease-out:         cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #fff; }
+
+    /* ─── Banner 容器 ─── */
+    .banner-v2 {
+      position: relative;
+      width: 100%;
+      height: 740px;
+      background: var(--clr-secondary-90);
+      overflow: hidden;
+    }
+
+    /* ─── 影片層(全 bleed,寬於容器以模擬電影感置中)─── */
+    .banner-v2__video-wrap {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    .banner-v2__video-wrap video {
+      /* Figma: w 2216, left:calc(50%-113px) translateX(-50%)
+         在 1440 設計下 video 比容器寬 776px(左右各 388),稍微往右偏 226px。
+         我們改為 width: max(100%, 2216px) 並 left:calc(50% - 113px) translate -50%
+         讓在大於 1440 寬時仍能填滿 */
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: max(100%, 2216px);
+      left: calc(50% - 113px);
+      transform: translateX(-50%);
+      object-fit: cover;
+      /* 淡入動態 */
+      opacity: 0;
+      transition: opacity 1.2s var(--ease-out);
+    }
+    .banner-v2.is-video-in .banner-v2__video-wrap video {
+      opacity: 1;
+    }
+
+    /* ─── 標題區(疊在影片上,左上偏中)─── */
+    .banner-v2__title {
+      position: absolute;
+      left: 40px;
+      /* Figma: top:calc(50%-235px) translateY(-50%)
+         以 740 高來算 = 50%-235 = 135px,文字中央在 y=135;
+         扣掉文字總高 (2 行 80px × 2 = 約 168) 後 top ≈ 51px */
+      top: 51px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      z-index: 2;
+    }
+
+    /* 共用文字樣式 */
+    .banner-v2__line {
+      font-family: var(--font-title);
+      font-size: var(--fs-h1);
+      font-weight: 400;
+      line-height: 72px;
+      letter-spacing: var(--ls-h1);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* line-1 LEADING:白字,初始淡出 */
+    .banner-v2__line--white {
+      color: var(--clr-secondary-10);
+      padding: 4px 14px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+    }
+    .banner-v2.is-line1-in .banner-v2__line--white {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* line-2 INDUSTRY-LEVEL CHANGE 黃底容器 + 黑字 */
+    .banner-v2__hl-wrap {
+      position: relative;
+      display: inline-block;
+      padding: 4px 14px;
+    }
+    /* 黃底:scaleX 0→1 從左展開 */
+    .banner-v2__hl-bar {
+      position: absolute;
+      inset: 0;
+      background: var(--clr-primary-70);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.55s var(--ease-out);
+      z-index: 0;
+    }
+    .banner-v2.is-hl-in .banner-v2__hl-bar {
+      transform: scaleX(1);
+    }
+    /* 黑字疊在黃底之上,黃底掃過後再淡入 */
+    .banner-v2__line--dark {
+      position: relative;
+      z-index: 1;
+      color: var(--clr-secondary-90);
+      padding: 0;
+      opacity: 0;
+      transition: opacity 0.4s var(--ease-out);
+    }
+    .banner-v2.is-line2-in .banner-v2__line--dark {
+      opacity: 1;
+    }
+
+    /* ─── 暫停 / 播放鈕(Figma node 148:10303)─── */
+    .banner-v2__pause {
+      position: absolute;
+      left: 40px;
+      bottom: 40px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(213, 213, 213, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      color: var(--clr-secondary-90);
+      z-index: 3;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s var(--ease-out), background 0.2s;
+    }
+    .banner-v2.is-pause-in .banner-v2__pause {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .banner-v2__pause:hover {
+      background: rgba(213, 213, 213, 0.85);
+    }
+    .banner-v2__pause-icon {
+      width: 16px;
+      height: 16px;
+      display: block;
+    }
+    .banner-v2__pause-icon--play { display: none; }
+    .banner-v2.is-paused .banner-v2__pause-icon--pause { display: none; }
+    .banner-v2.is-paused .banner-v2__pause-icon--play  { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════
+       HERO V2 (Figma node 148:7618 — fade-in + in-place play, NO scroll expand)
+  ═══════════════════════════════════ -->
+  <section class="banner-v2" id="banner-v2">
+    <!-- 影片層 -->
+    <div class="banner-v2__video-wrap">
+      <video id="banner-v2-video" autoplay muted loop playsinline>
+        <source src="hero_bn.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <!-- 標題 -->
+    <div class="banner-v2__title">
+      <div class="banner-v2__line banner-v2__line--white" id="banner-v2-line1">LEADING</div>
+      <div class="banner-v2__hl-wrap">
+        <div class="banner-v2__hl-bar" id="banner-v2-hl"></div>
+        <div class="banner-v2__line banner-v2__line--dark" id="banner-v2-line2">INDUSTRY-LEVEL CHANGE</div>
+      </div>
+    </div>
+
+    <!-- 暫停 / 播放鈕 -->
+    <button class="banner-v2__pause" id="banner-v2-pause" aria-label="Pause hero video">
+      <svg class="banner-v2__pause-icon banner-v2__pause-icon--pause" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="6" y="5" width="4" height="14" fill="currentColor"/>
+        <rect x="14" y="5" width="4" height="14" fill="currentColor"/>
+      </svg>
+      <svg class="banner-v2__pause-icon banner-v2__pause-icon--play" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M7 5 L19 12 L7 19 Z" fill="currentColor"/>
+      </svg>
+    </button>
+  </section>
+
+  <script>
+    /* ══════════════════════════════════════════════════════════
+       Hero V2 — intro 動畫順序
+       t=0      頁面載入,影片 autoplay (但 opacity 0)
+       t=200    LEADING 淡入 (0.5s)
+       t=600    黃底 scaleX 0→1 (0.55s)
+       t=1150   INDUSTRY-LEVEL CHANGE 黑字淡入 (0.4s)
+       t=300    (parallel) 影片 fade-in 開始 (1.2s)
+       t=1800   暫停鈕淡入 (0.5s)
+    ══════════════════════════════════════════════════════════ */
+    (function heroV2() {
+      const banner = document.getElementById('banner-v2');
+      const video  = document.getElementById('banner-v2-video');
+      const pauseBtn = document.getElementById('banner-v2-pause');
+      if (!banner) return;
+
+      const wait = (ms, fn) => setTimeout(fn, ms);
+
+      function playIntro() {
+        wait(200,  () => banner.classList.add('is-line1-in'));
+        wait(300,  () => banner.classList.add('is-video-in'));
+        wait(600,  () => banner.classList.add('is-hl-in'));
+        wait(1150, () => banner.classList.add('is-line2-in'));
+        wait(1800, () => banner.classList.add('is-pause-in'));
+      }
+
+      // 等字型載入完再播,避免 LEADING 出現後才換字體閃一下
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(playIntro);
+      } else {
+        playIntro();
+      }
+
+      // 暫停 / 播放
+      if (pauseBtn && video) {
+        pauseBtn.addEventListener('click', () => {
+          if (video.paused) {
+            video.play();
+            banner.classList.remove('is-paused');
+            pauseBtn.setAttribute('aria-label', 'Pause hero video');
+          } else {
+            video.pause();
+            banner.classList.add('is-paused');
+            pauseBtn.setAttribute('aria-label', 'Play hero video');
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
