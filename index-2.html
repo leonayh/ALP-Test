@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALP — Ally Logistic Property</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Nunito+Sans:wght@300;400;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles/tokens.css" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/header.css" />
+  <link rel="stylesheet" href="styles/kpi.css" />
+  <link rel="stylesheet" href="styles/highlights.css" />
+  <link rel="stylesheet" href="styles/solution.css" />
+  <link rel="stylesheet" href="styles/news.css" />
+  <link rel="stylesheet" href="styles/map.css" />
+  <link rel="stylesheet" href="styles/cta.css" />
+  <link rel="stylesheet" href="styles/footer.css" />
+  <link rel="stylesheet" href="styles/rwd.css" />
+
+  <style>
+    /* ═════════════════════════════════════════════════════════
+       Hero V2 (Figma node 148:7618)
+       - 1440 × 740 設計，影片全 bleed + 文字疊在左上區
+       - 進站動態：影片 fade-in 後 in-place 播放(不做 scroll-expand)
+       - title intro: LEADING 淡入 → 黃底 scaleX 0→1 → INDUSTRY-LEVEL CHANGE 淡入
+       - 暫停鈕在左下,點擊可暫停 / 繼續播放
+    ═════════════════════════════════════════════════════════ */
+
+    /* ─── Banner 容器 ─── */
+    .banner-v2 {
+      position: relative;
+      width: 100%;
+      height: 740px;
+      background: var(--clr-secondary-90);
+      overflow: hidden;
+    }
+
+    /* ─── 影片層(全 bleed,寬於容器以模擬電影感置中)─── */
+    .banner-v2__video-wrap {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    .banner-v2__video-wrap video {
+      /* Figma: w 2216, left:calc(50%-113px) translateX(-50%)
+         在 1440 設計下 video 比容器寬 776px(左右各 388),稍微往右偏 226px。
+         我們改為 width: max(100%, 2216px) 並 left:calc(50% - 113px) translate -50%
+         讓在大於 1440 寬時仍能填滿 */
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: max(100%, 2216px);
+      left: calc(50% - 113px);
+      transform: translateX(-50%);
+      object-fit: cover;
+      /* 淡入動態 */
+      opacity: 0;
+      transition: opacity 1.2s var(--ease-out);
+    }
+    .banner-v2.is-video-in .banner-v2__video-wrap video {
+      opacity: 1;
+    }
+
+    /* ─── 標題區(疊在影片上,左上偏中)─── */
+    .banner-v2__title {
+      position: absolute;
+      left: 40px;
+      /* Figma: top:calc(50%-235px) translateY(-50%)
+         以 740 高來算 = 50%-235 = 135px,文字中央在 y=135;
+         扣掉文字總高 (2 行 80px × 2 = 約 168) 後 top ≈ 51px */
+      top: 51px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      z-index: 2;
+    }
+
+    /* 共用文字樣式 */
+    .banner-v2__line {
+      font-family: var(--font-title);
+      font-size: var(--fs-h1);
+      font-weight: 400;
+      line-height: 72px;
+      letter-spacing: var(--ls-h1);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* line-1 LEADING:白字,初始淡出 */
+    .banner-v2__line--white {
+      color: var(--clr-secondary-10);
+      padding: 4px 14px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+    }
+    .banner-v2.is-line1-in .banner-v2__line--white {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* line-2 INDUSTRY-LEVEL CHANGE 黃底容器 + 黑字 */
+    .banner-v2__hl-wrap {
+      position: relative;
+      display: inline-block;
+      padding: 4px 14px;
+    }
+    /* 黃底:scaleX 0→1 從左展開 */
+    .banner-v2__hl-bar {
+      position: absolute;
+      inset: 0;
+      background: var(--clr-primary-70);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.55s var(--ease-out);
+      z-index: 0;
+    }
+    .banner-v2.is-hl-in .banner-v2__hl-bar {
+      transform: scaleX(1);
+    }
+    /* 黑字疊在黃底之上,黃底掃過後再淡入 */
+    .banner-v2__line--dark {
+      position: relative;
+      z-index: 1;
+      color: var(--clr-secondary-90);
+      padding: 0;
+      opacity: 0;
+      transition: opacity 0.4s var(--ease-out);
+    }
+    .banner-v2.is-line2-in .banner-v2__line--dark {
+      opacity: 1;
+    }
+
+    /* ─── 暫停 / 播放鈕(Figma node 148:10303)─── */
+    .banner-v2__pause {
+      position: absolute;
+      left: 40px;
+      bottom: 40px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(213, 213, 213, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      color: var(--clr-secondary-90);
+      z-index: 3;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s var(--ease-out), background 0.2s;
+    }
+    .banner-v2.is-pause-in .banner-v2__pause {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .banner-v2__pause:hover {
+      background: rgba(213, 213, 213, 0.85);
+    }
+    .banner-v2__pause-icon {
+      width: 16px;
+      height: 16px;
+      display: block;
+    }
+    .banner-v2__pause-icon--play { display: none; }
+    .banner-v2.is-paused .banner-v2__pause-icon--pause { display: none; }
+    .banner-v2.is-paused .banner-v2__pause-icon--play  { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════
+       HEADER (Figma node 56:1057 — black bar + auto-hide on scroll)
+  ═══════════════════════════════════ -->
+  <header class="header" id="site-header">
+    <div class="header__bar">
+      <a href="#" class="header__logo" aria-label="ALP — Ally Logistic Property">
+        <svg width="79" height="32" viewBox="0 0 99 40" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- A outer -->
+          <path transform="translate(0 0.12)" d="M14.7382 0L0.0399194 39.272L0 39.392H2.46702L16.1673 2.488H19.784L33.4684 39.336L33.4844 39.392H35.9514L21.2131 0H14.7382Z"/>
+          <!-- A inner -->
+          <path transform="translate(3.94 4.08)" d="M14.9618 0H13.1015L0.0479032 35.312L0 35.432H2.46702L14.0356 3.648L25.5803 35.376L25.5963 35.432H28.0633L14.9857 0.0560001L14.9618 0Z"/>
+          <!-- L outer -->
+          <path transform="translate(39.43 0.12)" d="M2.475 0H0V39.392H26.1552V36.912H2.475V0Z"/>
+          <!-- L inner -->
+          <path transform="translate(43.37 0.12)" d="M2.475 0H0V35.44H22.2111V32.952H2.475V0Z"/>
+          <!-- P outer -->
+          <path transform="translate(69.03 0.12)" d="M16.3669 0H0V39.392H2.475V2.488H16.3669C22.2111 2.488 26.9695 7.256 26.9695 13.112C26.9695 18.968 22.2111 23.736 16.3669 23.736H9.86806V26.216H16.3669C23.5764 26.216 29.4445 20.336 29.4445 13.112C29.4445 5.888 23.5764 0 16.3669 0Z"/>
+          <!-- P inner -->
+          <path transform="translate(72.97 4.07)" d="M19.0735 9.152C19.0735 12.832 16.0875 15.824 12.4229 15.824H5.92403V18.304H12.4229C17.4607 18.304 21.5565 14.2 21.5565 9.152C21.5565 4.104 17.4607 0 12.4229 0H0V35.432H2.475V2.488H12.4149C16.0875 2.488 19.0655 5.48 19.0655 9.152H19.0735Z"/>
+        </svg>
+      </a>
+
+      <nav class="header__nav" aria-label="Header actions">
+        <button class="btn-lang">EN</button>
+        <button class="btn-contact">Contact Us</button>
+        <button class="btn-menu" id="btn-menu" aria-label="Menu" aria-expanded="false" aria-controls="header-menu">
+          <span class="btn-menu__icon" aria-hidden="true">
+            <span class="btn-menu__line"></span>
+            <span class="btn-menu__line"></span>
+            <span class="btn-menu__line"></span>
+          </span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Mega menu panel (menu_opened 狀態)
+         關閉由 bar 內的 ☰ 按鈕 morph 成 ✕ 後再點一次來觸發 (見 main.js headerMenu) -->
+    <div class="header__menu" id="header-menu" aria-hidden="true">
+      <nav class="header__menu-nav" aria-label="Main menu">
+        <div class="menu-row" data-has-sub="true">
+          <button class="menu-primary" type="button">
+            <span>About</span>
+            <svg class="menu-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M4 6 L8 10 L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+            </svg>
+          </button>
+          <div class="menu-sub">
+            <a class="menu-sub-link is-active" href="#">About ALP</a>
+            <a class="menu-sub-link" href="#">Mission &amp; Core Value</a>
+            <a class="menu-sub-link" href="#">Building Design</a>
+            <a class="menu-sub-link" href="#">ALP Group</a>
+          </div>
+        </div>
+
+        <div class="menu-row" data-has-sub="true">
+          <button class="menu-primary" type="button">
+            <span>Footprint</span>
+            <svg class="menu-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M4 6 L8 10 L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+            </svg>
+          </button>
+          <div class="menu-sub">
+            <a class="menu-sub-link is-active" href="#">Taiwan</a>
+            <a class="menu-sub-link" href="#">Malaysia</a>
+            <a class="menu-sub-link" href="#">Thailand</a>
+            <a class="menu-sub-link" href="#">Singapore</a>
+            <a class="menu-sub-link" href="#">Japan</a>
+          </div>
+        </div>
+
+        <div class="menu-row" data-has-sub="true">
+          <button class="menu-primary" type="button">
+            <span>Solution</span>
+            <svg class="menu-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M4 6 L8 10 L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" fill="none"/>
+            </svg>
+          </button>
+          <div class="menu-sub">
+            <a class="menu-sub-link is-active" href="#">Smart Infrastructure</a>
+            <a class="menu-sub-link" href="#">Automated operating system</a>
+            <a class="menu-sub-link" href="#">Business Solutions</a>
+          </div>
+        </div>
+
+        <div class="menu-row"><a href="#" class="menu-primary">Case Study</a></div>
+        <div class="menu-row"><a href="#" class="menu-primary">Newsroom</a></div>
+        <div class="menu-row"><a href="#" class="menu-primary">Contact</a></div>
+        <div class="menu-row"><a href="#" class="menu-primary">Career</a></div>
+      </nav>
+    </div>
+  </header>
+
+
+  <!-- ═══════════════════════════════════
+       HERO V2 (Figma node 148:7618 — fade-in + in-place play, NO scroll expand)
+  ═══════════════════════════════════ -->
+  <section class="banner-v2" id="banner-v2">
+    <!-- 影片層 -->
+    <div class="banner-v2__video-wrap">
+      <video id="banner-v2-video" autoplay muted loop playsinline>
+        <source src="hero_bn.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <!-- 標題 -->
+    <div class="banner-v2__title">
+      <div class="banner-v2__line banner-v2__line--white" id="banner-v2-line1">LEADING</div>
+      <div class="banner-v2__hl-wrap">
+        <div class="banner-v2__hl-bar" id="banner-v2-hl"></div>
+        <div class="banner-v2__line banner-v2__line--dark" id="banner-v2-line2">INDUSTRY-LEVEL CHANGE</div>
+      </div>
+    </div>
+
+    <!-- 暫停 / 播放鈕 -->
+    <button class="banner-v2__pause" id="banner-v2-pause" aria-label="Pause hero video">
+      <svg class="banner-v2__pause-icon banner-v2__pause-icon--pause" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="6" y="5" width="4" height="14" fill="currentColor"/>
+        <rect x="14" y="5" width="4" height="14" fill="currentColor"/>
+      </svg>
+      <svg class="banner-v2__pause-icon banner-v2__pause-icon--play" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M7 5 L19 12 L7 19 Z" fill="currentColor"/>
+      </svg>
+    </button>
+  </section>
+
+
+  <!-- ═══════════════════════════════════
+       KPI
+  ═══════════════════════════════════ -->
+  <section id="section-kpi" class="kpi">
+    <div class="kpi__title reveal">
+      <div class="kpi__title-line">Building</div>
+      <div class="kpi__hl-wrap">
+        <div class="hl-bar"></div>
+        <div class="kpi__title-line hl-text">Logistics Advantage</div>
+      </div>
+    </div>
+
+    <div class="kpi__row reveal" style="transition-delay: 0.2s">
+
+      <div class="kpi__col">
+        <div class="kpi__number" data-target="8">0</div>
+        <div class="kpi__unit">
+          <span class="kpi__unit-top">&nbsp;</span>
+          <span class="kpi__unit-bot">countries<br>targeted</span>
+        </div>
+      </div>
+
+      <div class="kpi__col">
+        <div class="kpi__number" data-target="48">0</div>
+        <div class="kpi__unit">
+          <span class="kpi__unit-top">&nbsp;</span>
+          <span class="kpi__unit-bot">OMEGAs<br>in Asia</span>
+        </div>
+      </div>
+
+      <div class="kpi__col kpi__col--with-plus">
+        <div class="kpi__num">
+          <div class="kpi__number" data-target="8" data-suffix="M">0</div>
+          <span class="kpi__plus">+</span>
+        </div>
+        <div class="kpi__unit">
+          <span class="kpi__unit-top">SQM</span>
+          <span class="kpi__unit-bot">Logistics portfolio<br>area in Asia</span>
+        </div>
+      </div>
+
+      <div class="kpi__col kpi__col--with-plus">
+        <div class="kpi__num">
+          <div class="kpi__number" data-target="1.5" data-suffix="B">0</div>
+          <span class="kpi__plus">+</span>
+        </div>
+        <div class="kpi__unit">
+          <span class="kpi__unit-top">USD</span>
+          <span class="kpi__unit-bot">assets under<br>management</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════
+       HIGHLIGHTS / DNA (3 sticky slides)
+  ═══════════════════════════════════ -->
+  <section id="section-highlights" class="highlights">
+   <div class="highlights__sticky">
+
+    <!-- Slide 0: SIMPLE — One-stop solutions -->
+    <div class="highlights__slide" id="hl-slide-0">
+      <img class="highlights__bg" src="assets/images/hl-simple.jpg" alt="One-stop solutions" />
+      <div class="highlights__title">
+        <div class="highlights__title-main">One-stop solutions</div>
+        <div class="highlights__title-sub">to accelerate the shift to smarter warehousing and logistics</div>
+      </div>
+    </div>
+
+    <!-- Slide 1: SMART — Automated warehousing -->
+    <div class="highlights__slide" id="hl-slide-1">
+      <img class="highlights__bg" src="assets/images/hl-smart.png" alt="Automated warehousing" />
+      <div class="highlights__title">
+        <div class="highlights__title-main">Automated warehousing</div>
+        <div class="highlights__title-sub">to help businesses allocate resources with greater precision</div>
+      </div>
+    </div>
+
+    <!-- Slide 2: SUSTAINABLE — Low-carbon -->
+    <div class="highlights__slide" id="hl-slide-2">
+      <img class="highlights__bg" src="assets/images/hl-sustainable.png" alt="Low-carbon operations" />
+      <div class="highlights__title">
+        <div class="highlights__title-main">Low-carbon operations<br>and energy-integrated planning</div>
+        <div class="highlights__title-sub">for stronger long-term operational returns</div>
+      </div>
+    </div>
+
+    <!-- Progress bar：保留在 sticky 外殼中，不屬於任何 slide，切換時常駐 -->
+    <div class="highlights__progress">
+      <div class="highlights__prog-item is-active" data-slide="0">
+        <span class="highlights__prog-label">Simple</span>
+        <div class="highlights__prog-line"></div>
+      </div>
+      <div class="highlights__prog-item" data-slide="1">
+        <span class="highlights__prog-label">Smart</span>
+        <div class="highlights__prog-line"></div>
+      </div>
+      <div class="highlights__prog-item" data-slide="2">
+        <span class="highlights__prog-label">Sustainable</span>
+        <div class="highlights__prog-line"></div>
+      </div>
+    </div>
+
+   </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════
+       SOLUTION — Explore / Solution (3 tabs)
+  ═══════════════════════════════════ -->
+  <section id="section-solution" class="solution">
+    <div class="solution__inner">
+
+      <div class="solution__title-col">
+        <div class="solution__sticky-line reveal">Explore</div>
+        <div class="solution__sticky-hl-wrap">
+          <div class="hl-bar"></div>
+          <div class="solution__sticky-line hl-text reveal" style="transition-delay: 0.1s">Solution</div>
+        </div>
+      </div>
+
+      <div class="solution__content">
+
+        <!-- Tab 1: Smart Infrastructure -->
+        <div class="solution__tab">
+          <div class="solution__tab-header">
+            <div class="solution__tab-text">
+              <p class="solution__subtitle reveal">For businesses seeking efficient warehousing and distribution capacity.</p>
+              <p class="solution__heading reveal" style="transition-delay: 0.1s">Smart Infrastructure</p>
+            </div>
+          </div>
+          <div class="solution__cards">
+            <div class="solution__card">
+              <img src="assets/images/sol-omega.png" alt="Omega" />
+              <span class="solution__card-label">Omega</span>
+              <div class="solution__mask"></div>
+            </div>
+            <div class="solution__card">
+              <img src="assets/images/sol-industry-hub.png" alt="Industry Hub" />
+              <span class="solution__card-label">Industry Hub</span>
+              <div class="solution__mask"></div>
+            </div>
+            <div class="solution__card">
+              <img src="assets/images/sol-o-link.png" alt="O-Link" />
+              <span class="solution__card-label">O-Link</span>
+              <div class="solution__mask"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Technology & Software -->
+        <div class="solution__tab">
+          <div class="solution__tab-header">
+            <div class="solution__tab-text">
+              <p class="solution__subtitle reveal">For businesses seeking visibility, precision, and real-time operational control.</p>
+              <p class="solution__heading reveal" style="transition-delay: 0.1s">Automated operating system</p>
+            </div>
+          </div>
+          <div class="solution__cards">
+            <div class="solution__card">
+              <img src="assets/images/sol-alpos.png" alt="ALPOS" />
+              <span class="solution__card-label">ALPOS</span>
+              <div class="solution__mask"></div>
+            </div>
+            <div class="solution__card">
+              <img src="assets/images/sol-q-silver.png" alt="Q-Silver" />
+              <span class="solution__card-label">Q-Silver</span>
+              <div class="solution__mask"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Business Solutions -->
+        <div class="solution__tab">
+          <div class="solution__tab-header">
+            <div class="solution__tab-text">
+              <p class="solution__subtitle reveal">For businesses ready to turn existing land and assets into growth engines.</p>
+              <p class="solution__heading reveal" style="transition-delay: 0.1s">Business Solutions</p>
+            </div>
+          </div>
+          <div class="solution__cards">
+            <div class="solution__card">
+              <img src="assets/images/sol-mini-mega.png" alt="Mini Mega" />
+              <span class="solution__card-label">Mini Mega</span>
+              <div class="solution__mask"></div>
+            </div>
+            <div class="solution__card">
+              <img src="assets/images/sol-alp-park.png" alt="ALP Park" />
+              <span class="solution__card-label">ALP Park</span>
+              <div class="solution__mask"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════
+       NEWS
+  ═══════════════════════════════════ -->
+  <section id="section-news" class="news">
+    <div class="news__header">
+      <div class="news__title-wrap reveal">
+        <div class="hl-bar"></div>
+        <div class="news__title hl-text">News</div>
+      </div>
+      <button class="news__btn">Newsroom</button>
+    </div>
+
+    <div class="news__cards">
+      <article class="news__card news__card--main">
+        <img src="assets/images/news-main.png" alt="News main" />
+        <!-- Pin icon (置頂標記) — 右上角，依 Figma node 47:6643 (Card-News) -->
+        <!-- 結構：外圈柔光黑色光暈 (80×80) + 內陰影 (位於 icon 下) + 釘子 icon (24×24) -->
+        <div class="news__pin" aria-hidden="true">
+          <span class="news__pin-icon-wrap">
+            <svg class="news__pin-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- 圖釘形狀 (Figma 18.93 × 18.92,水平鏡像對齊右上角)，置中於 24×24 並做 scaleX(-1) -->
+              <g transform="translate(2.54 2.54) scale(-1 1) translate(-18.93 0)">
+                <path d="M16.28 7.8H13.46L7.78 2.12L8.49 1.41L7.07 0L0 7.07L1.42 8.48L2.13 7.77L7.8 13.45H7.79V16.28L9.21 17.7L12.75 14.15L17.52 18.92L18.93 17.51L14.16 12.74L17.69 9.21L16.28 7.8Z" fill="currentColor"/>
+              </g>
+            </svg>
+          </span>
+        </div>
+        <div class="news__card-content">
+          <div class="news__meta">
+            <span class="news__tag">Category</span>
+            <span class="news__date">Jan 1, 2026</span>
+          </div>
+          <div class="news__card-title">Top industry players recognised at 2023 Real Estate Asia Awards</div>
+        </div>
+      </article>
+
+      <div class="news__side">
+        <article class="news__card news__card--sm">
+          <img src="assets/images/news-2.png" alt="News 2" />
+          <div class="news__card-content">
+            <div class="news__meta">
+              <span class="news__tag">Category</span>
+              <span class="news__date">Jan 16, 2026</span>
+            </div>
+            <div class="news__card-title">Ally Logistic Property Secures Strategic Investment from CapitaLand Investment to Accelerate Expansion of Smart Logistics in APAC</div>
+          </div>
+        </article>
+        <article class="news__card news__card--sm">
+          <img src="assets/images/news-3.png" alt="News 3" />
+          <div class="news__card-content">
+            <div class="news__meta">
+              <span class="news__tag">Category</span>
+              <span class="news__date">Mar 28, 2026</span>
+            </div>
+            <div class="news__card-title">SSI Schaefer &amp; ALP Galvanise Smart, Automated Logistics in SEA with New OMEGA Warehouse</div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════
+       MAP — Rooted in Asia
+  ═══════════════════════════════════ -->
+  <section id="section-map" class="map">
+    <div class="map__img" id="map-img">
+      <div class="map__layer map__layer--bg">
+        <img src="assets/images/map-bg.png" alt="Global Footprint" />
+      </div>
+      <div class="map__layer map__layer--labels">
+        <!-- Taiwan：黃色大方塊 + 文字（phase A，與 bg 同步） -->
+        <span class="map__dot map__dot--taiwan" style="left: 53.06%; top: 43.92%;"></span>
+        <span class="map__label map__label--taiwan" style="left: 58.3%; top: 44.5%;">Taiwan</span>
+        <!-- 其他 4 國：灰色小方塊 + 文字（phase B） -->
+        <span class="map__dot map__dot--country" style="left: 63.89%; top: 76.70%;"></span>
+        <span class="map__label map__label--country" style="left: 66.9%; top: 76.3%;">Malaysia</span>
+        <span class="map__dot map__dot--country" style="left: 14.34%; top: 57.11%;"></span>
+        <span class="map__label map__label--country" style="left: 5.3%;  top: 56.7%;">Thailand</span>
+        <span class="map__dot map__dot--country" style="left: 31.68%; top: 88.45%;"></span>
+        <span class="map__label map__label--country" style="left: 21.4%; top: 88.0%;">Singapore</span>
+        <span class="map__dot map__dot--country" style="left: 71.32%; top: 2.27%;"></span>
+        <span class="map__label map__label--country" style="left: 74.3%; top: 1.9%;">Japan</span>
+      </div>
+      <div class="map__layer map__layer--lines">
+        <svg class="map__lines-svg" viewBox="0 0 838 566" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- 4 條從台灣 (~442,256) 輻射到各國的線；M 端設在台灣端，
+               讓 stroke-dasharray 動畫從台灣端往外描繪。 -->
+          <path class="map__line" d="M442.5 256L516.5 408.5" stroke="#4A4A4A" stroke-width="1" />
+          <path class="map__line" d="M438.5 256L141.5 308" stroke="#4A4A4A" stroke-width="1" />
+          <path class="map__line" d="M439.5 255L274 463" stroke="#4A4A4A" stroke-width="1" />
+          <path class="map__line" d="M442 256L573.5 46.5" stroke="#4A4A4A" stroke-width="1" />
+        </svg>
+      </div>
+    </div>
+    <div class="map__text">
+      <div class="map__title-wrap">
+        <div class="map__title-line map__title-line--no-hl reveal">
+          <div class="hl-bar"></div>
+          <span class="map__title-text hl-text">Rooted in Asia</span>
+        </div>
+        <div class="map__title-line reveal" style="transition-delay: 0.1s">
+          <div class="hl-bar"></div>
+          <span class="map__title-text hl-text">Bound for the World</span>
+        </div>
+      </div>
+      <p class="map__desc reveal" style="transition-delay: 0.25s">
+        Helping businesses improve efficiency, resilience,<br>and speed across global markets.
+      </p>
+      <button class="map__btn reveal" style="transition-delay: 0.35s">Global Footprint</button>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════
+       CTA
+  ═══════════════════════════════════ -->
+  <section class="cta">
+    <div class="cta__inner">
+      <div class="cta__headline">
+        <div class="hl-bar"></div>
+        <div class="cta__headline-text hl-text">Define the Future Start Here</div>
+      </div>
+      <p class="cta__sub">
+        Join us in shaping a new era—simpler, smarter, and more sustainable.
+      </p>
+      <div class="cta__btns">
+        <button class="cta__btn">About ALP</button>
+        <button class="cta__btn">Contact Us</button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer__top">
+      <div class="footer__logo">
+        <svg width="214" height="50" viewBox="0 0 214 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0_2545_1297)">
+            <path d="M52.4899 0.149902H49.3899V49.3899H82.1499V46.2899H52.4899V0.149902Z" fill="#FFFFFF"/>
+            <path d="M57.4301 0.149902H54.3301V44.4499H82.1501V41.3399H57.4301V0.149902Z" fill="#FFFFFF"/>
+            <path d="M115.29 16.5298C115.29 21.1298 111.55 24.8698 106.96 24.8698H98.8199V27.9698H106.96C113.27 27.9698 118.4 22.8398 118.4 16.5298C118.4 10.2198 113.27 5.08984 106.96 5.08984H91.3999V49.3798H94.4999V8.19984H106.95C111.55 8.19984 115.28 11.9398 115.28 16.5298H115.29Z" fill="#FFFFFF"/>
+            <path d="M106.96 0.149902H86.46V49.3899H89.56V3.2599H106.96C114.28 3.2599 120.24 9.2199 120.24 16.5399C120.24 23.8599 114.28 29.8199 106.96 29.8199H98.82V32.9199H106.96C115.99 32.9199 123.34 25.5699 123.34 16.5399C123.34 7.5099 115.99 0.149902 106.96 0.149902Z" fill="#FFFFFF"/>
+            <path d="M23.6799 5.1001H21.3499L4.99994 49.2401L4.93994 49.3901H8.02994L22.5199 9.6601L36.9799 49.3201L36.9999 49.3901H40.0899L23.7099 5.1701L23.6799 5.1001Z" fill="#FFFFFF"/>
+            <path d="M18.46 0.149902L0.05 49.2399L0 49.3899H3.09L20.25 3.2599H24.78L41.92 49.3199L41.94 49.3899H45.03L26.57 0.149902H18.46Z" fill="#FFFFFF"/>
+            <path d="M135.06 9.15H139.69L140.48 11.25H142.8L138.29 0H136.51L131.98 11.25H134.25L135.05 9.15H135.06ZM137.39 3.07L139 7.33H135.76L137.39 3.07Z" fill="#FFFFFF"/>
+            <path d="M146.3 11.25H151.45V9.31H146.3V0H144.12V11.25H145.72H146.3Z" fill="#FFFFFF"/>
+            <path d="M155.2 11.25H160.35V9.31H155.2V0H153.02V11.25H154.62H155.2Z" fill="#FFFFFF"/>
+            <path d="M163.61 11.25H165.81V6.36L169.85 0H167.37L164.72 4.36L162.06 0H159.55L163.61 6.45V11.25Z" fill="#FFFFFF"/>
+            <path d="M132.81 19.2002V30.4502H134.41H134.99H140.14V28.5102H134.99V19.2002H132.81Z" fill="#FFFFFF"/>
+            <path d="M151.6 22.54C151.3 21.84 150.89 21.22 150.36 20.69C149.83 20.16 149.22 19.75 148.51 19.46C147.81 19.17 147.04 19.02 146.21 19.02C145.38 19.02 144.63 19.17 143.92 19.46C143.22 19.75 142.6 20.16 142.07 20.69C141.54 21.22 141.13 21.83 140.84 22.53C140.55 23.23 140.4 23.98 140.4 24.79C140.4 25.6 140.55 26.36 140.85 27.07C141.15 27.78 141.56 28.4 142.09 28.93C142.62 29.46 143.24 29.87 143.95 30.17C144.66 30.47 145.42 30.62 146.25 30.62C147.08 30.62 147.83 30.47 148.53 30.17C149.23 29.87 149.84 29.46 150.37 28.93C150.9 28.4 151.31 27.79 151.61 27.08C151.91 26.38 152.06 25.62 152.06 24.81C152.06 24 151.91 23.24 151.61 22.54H151.6ZM149.35 26.78C149.05 27.35 148.63 27.79 148.09 28.11C147.56 28.43 146.93 28.59 146.2 28.59C145.68 28.59 145.2 28.5 144.75 28.32C144.31 28.14 143.93 27.88 143.61 27.55C143.3 27.22 143.05 26.82 142.87 26.35C142.69 25.88 142.61 25.36 142.61 24.8C142.61 24.05 142.76 23.4 143.07 22.83C143.37 22.27 143.8 21.83 144.33 21.51C144.87 21.2 145.49 21.04 146.19 21.04C146.73 21.04 147.23 21.13 147.66 21.31C148.1 21.49 148.48 21.75 148.8 22.09C149.12 22.43 149.37 22.82 149.54 23.28C149.71 23.74 149.8 24.25 149.8 24.8C149.8 25.56 149.65 26.22 149.34 26.78H149.35Z" fill="#FFFFFF"/>
+            <path d="M158.97 26.11L162.36 26.14C162.29 26.47 162.19 26.78 162.05 27.04C161.78 27.55 161.4 27.93 160.9 28.19C160.4 28.45 159.8 28.58 159.09 28.58C158.38 28.58 157.8 28.42 157.27 28.1C156.74 27.78 156.33 27.33 156.02 26.76C155.72 26.19 155.56 25.53 155.56 24.78C155.56 24.03 155.71 23.38 156.02 22.82C156.33 22.26 156.76 21.82 157.31 21.51C157.86 21.2 158.49 21.04 159.21 21.04C159.84 21.04 160.42 21.16 160.94 21.41C161.46 21.66 161.9 22.01 162.25 22.47L163.72 21C163.21 20.37 162.56 19.88 161.78 19.54C161 19.2 160.15 19.02 159.22 19.02C158.39 19.02 157.61 19.17 156.9 19.46C156.19 19.75 155.56 20.16 155.03 20.69C154.5 21.22 154.08 21.83 153.78 22.53C153.48 23.23 153.33 23.99 153.33 24.81C153.33 25.63 153.48 26.38 153.77 27.07C154.06 27.77 154.47 28.38 155 28.92C155.53 29.45 156.14 29.87 156.84 30.16C157.54 30.45 158.29 30.6 159.09 30.6C160.18 30.6 161.14 30.37 161.98 29.92C162.82 29.47 163.48 28.79 163.96 27.89C164.44 26.99 164.68 25.87 164.68 24.52V24.22H158.95V26.11H158.97Z" fill="#FFFFFF"/>
+            <path d="M168.55 19.2002H166.37V30.4502H168.55V19.2002Z" fill="#FFFFFF"/>
+            <path d="M178.01 27.25C178.01 26.66 177.91 26.17 177.72 25.77C177.53 25.37 177.27 25.04 176.96 24.79C176.65 24.53 176.3 24.33 175.92 24.17C175.54 24.01 175.16 23.87 174.78 23.74C174.4 23.61 174.05 23.48 173.74 23.34C173.42 23.2 173.17 23.04 172.98 22.84C172.79 22.65 172.69 22.4 172.69 22.09C172.69 21.73 172.83 21.45 173.12 21.26C173.41 21.07 173.8 20.97 174.3 20.97C174.74 20.97 175.13 21.06 175.48 21.23C175.83 21.4 176.16 21.67 176.5 22.03L177.94 20.59C177.54 20.13 177.04 19.76 176.42 19.47C175.8 19.18 175.11 19.04 174.34 19.04C173.61 19.04 172.96 19.17 172.39 19.42C171.81 19.68 171.36 20.04 171.03 20.52C170.7 21 170.53 21.58 170.53 22.26C170.53 22.84 170.63 23.31 170.82 23.69C171.01 24.07 171.27 24.38 171.58 24.62C171.89 24.86 172.24 25.06 172.62 25.22C173 25.38 173.38 25.52 173.76 25.64C174.14 25.76 174.49 25.9 174.8 26.05C175.11 26.2 175.37 26.38 175.56 26.59C175.75 26.8 175.85 27.08 175.85 27.42C175.85 27.81 175.68 28.12 175.35 28.35C175.01 28.57 174.56 28.69 174 28.69C173.37 28.69 172.84 28.57 172.4 28.33C171.96 28.09 171.58 27.75 171.25 27.31L169.81 28.75C170.33 29.37 170.92 29.83 171.56 30.14C172.21 30.45 172.98 30.6 173.89 30.6C175.17 30.6 176.18 30.3 176.91 29.7C177.65 29.1 178.01 28.28 178.01 27.24V27.25Z" fill="#FFFFFF"/>
+            <path d="M187.84 21.1402V19.2002H178.48V21.1402H182.06V30.4502H184.25V21.1402H187.84Z" fill="#FFFFFF"/>
+            <path d="M191.52 19.2002H189.34V30.4502H191.52V19.2002Z" fill="#FFFFFF"/>
+            <path d="M194.9 28.9398C195.43 29.4698 196.04 29.8798 196.75 30.1698C197.45 30.4598 198.22 30.6098 199.04 30.6098C199.96 30.6098 200.76 30.4698 201.46 30.1798C202.15 29.8898 202.76 29.4898 203.28 28.9598L201.81 27.4898C201.5 27.8398 201.12 28.1098 200.67 28.3098C200.22 28.4998 199.67 28.5998 199.05 28.5998C198.53 28.5998 198.05 28.5098 197.62 28.3298C197.19 28.1498 196.81 27.8898 196.49 27.5498C196.17 27.2098 195.92 26.8198 195.75 26.3598C195.58 25.8998 195.49 25.3898 195.49 24.8198C195.49 24.2498 195.57 23.7598 195.75 23.2898C195.92 22.8298 196.17 22.4298 196.49 22.0898C196.81 21.7498 197.19 21.4998 197.62 21.3198C198.05 21.1398 198.53 21.0598 199.05 21.0598C199.65 21.0598 200.17 21.1598 200.62 21.3498C201.07 21.5398 201.45 21.8098 201.76 22.1498L203.23 20.6798C202.71 20.1698 202.11 19.7698 201.42 19.4698C200.74 19.1798 199.95 19.0298 199.05 19.0298C198.22 19.0298 197.45 19.1798 196.75 19.4798C196.05 19.7798 195.44 20.1898 194.91 20.7098C194.38 21.2298 193.98 21.8498 193.69 22.5498C193.41 23.2498 193.27 24.0098 193.27 24.8198C193.27 25.6298 193.41 26.3898 193.69 27.0898C193.97 27.7898 194.38 28.4098 194.91 28.9398H194.9Z" fill="#FFFFFF"/>
+            <path d="M139.17 38.8299C138.6 38.5399 137.96 38.3999 137.24 38.3999H132.81V49.6499H134.99V45.4699H137.25C137.96 45.4699 138.61 45.3299 139.18 45.0399C139.75 44.7499 140.2 44.3399 140.53 43.8199C140.86 43.2899 141.03 42.6699 141.03 41.9399C141.03 41.2099 140.86 40.5899 140.53 40.0599C140.2 39.5299 139.75 39.1199 139.18 38.8399L139.17 38.8299ZM138.61 42.8899C138.45 43.1499 138.23 43.3499 137.95 43.4899C137.67 43.6299 137.36 43.6999 137.02 43.6999H134.99V40.1799H137.02C137.36 40.1799 137.67 40.2499 137.95 40.3899C138.23 40.5299 138.45 40.7299 138.61 40.9999C138.77 41.2699 138.85 41.5799 138.85 41.9399C138.85 42.2999 138.77 42.6299 138.61 42.8899Z" fill="#FFFFFF"/>
+            <path d="M148.86 44.5399C149.41 44.2699 149.84 43.8899 150.15 43.3999C150.45 42.9099 150.61 42.3399 150.61 41.6799C150.61 41.0199 150.46 40.4699 150.15 39.9799C149.85 39.4899 149.42 39.0999 148.87 38.8199C148.32 38.5399 147.68 38.3999 146.96 38.3999H142.56V49.6499H144.74V44.9499H145.12L148.71 49.6499H151.35L147.57 44.8799C148.04 44.8199 148.49 44.7199 148.87 44.5299L148.86 44.5399ZM144.73 40.1799H146.76C147.29 40.1799 147.71 40.3299 148 40.6199C148.29 40.9099 148.44 41.2799 148.44 41.7199C148.44 42.1999 148.29 42.5799 148 42.8499C147.71 43.1199 147.29 43.2599 146.76 43.2599H144.73V40.1899V40.1799Z" fill="#FFFFFF"/>
+            <path d="M161.88 39.9C161.35 39.37 160.74 38.96 160.03 38.67C159.33 38.38 158.56 38.23 157.73 38.23C156.9 38.23 156.15 38.38 155.44 38.67C154.74 38.96 154.12 39.37 153.59 39.9C153.06 40.43 152.65 41.04 152.36 41.74C152.07 42.44 151.92 43.19 151.92 44C151.92 44.81 152.07 45.57 152.37 46.28C152.67 46.99 153.08 47.61 153.61 48.14C154.14 48.67 154.76 49.08 155.47 49.38C156.18 49.68 156.94 49.83 157.77 49.83C158.6 49.83 159.35 49.68 160.05 49.38C160.75 49.08 161.36 48.67 161.89 48.14C162.42 47.61 162.83 47 163.13 46.29C163.43 45.59 163.58 44.83 163.58 44.02C163.58 43.21 163.43 42.45 163.13 41.75C162.83 41.05 162.42 40.43 161.89 39.9H161.88ZM160.87 45.98C160.57 46.55 160.15 46.99 159.61 47.31C159.08 47.63 158.45 47.79 157.72 47.79C157.2 47.79 156.72 47.7 156.27 47.52C155.83 47.34 155.45 47.08 155.13 46.75C154.82 46.42 154.57 46.02 154.39 45.55C154.21 45.08 154.13 44.56 154.13 44C154.13 43.25 154.28 42.6 154.59 42.03C154.89 41.47 155.32 41.03 155.85 40.71C156.39 40.4 157.01 40.24 157.71 40.24C158.25 40.24 158.75 40.33 159.18 40.51C159.62 40.69 160 40.95 160.32 41.29C160.64 41.63 160.89 42.02 161.06 42.48C161.23 42.94 161.32 43.45 161.32 44C161.32 44.76 161.17 45.42 160.86 45.98H160.87Z" fill="#FFFFFF"/>
+            <path d="M171.65 38.8299C171.08 38.5399 170.44 38.3999 169.72 38.3999H165.29V49.6499H167.47V45.4699H169.73C170.44 45.4699 171.09 45.3299 171.66 45.0399C172.23 44.7499 172.68 44.3399 173.01 43.8199C173.34 43.2899 173.51 42.6699 173.51 41.9399C173.51 41.2099 173.34 40.5899 173.01 40.0599C172.68 39.5299 172.23 39.1199 171.66 38.8399L171.65 38.8299ZM171.09 42.8899C170.93 43.1499 170.71 43.3499 170.43 43.4899C170.15 43.6299 169.84 43.6999 169.5 43.6999H167.47V40.1799H169.5C169.84 40.1799 170.15 40.2499 170.43 40.3899C170.71 40.5299 170.93 40.7299 171.09 40.9999C171.25 41.2699 171.33 41.5799 171.33 41.9399C171.33 42.2999 171.25 42.6299 171.09 42.8899Z" fill="#FFFFFF"/>
+            <path d="M177.21 44.8299H182.3V42.9799H177.21V40.3199H182.78V38.3999H177.21H176.64H175.04V49.6499H176.64H177.21H182.86V47.7299H177.21V44.8299Z" fill="#FFFFFF"/>
+            <path d="M190.97 44.5399C191.52 44.2699 191.95 43.8899 192.26 43.3999C192.56 42.9099 192.72 42.3399 192.72 41.6799C192.72 41.0199 192.57 40.4699 192.26 39.9799C191.96 39.4899 191.53 39.0999 190.98 38.8199C190.43 38.5399 189.79 38.3999 189.07 38.3999H184.67V49.6499H186.85V44.9499H187.23L190.82 49.6499H193.46L189.68 44.8799C190.15 44.8199 190.6 44.7199 190.98 44.5299L190.97 44.5399ZM186.85 40.1799H188.88C189.41 40.1799 189.83 40.3299 190.12 40.6199C190.41 40.9099 190.56 41.2799 190.56 41.7199C190.56 42.1999 190.41 42.5799 190.12 42.8499C189.83 43.1199 189.41 43.2599 188.88 43.2599H186.85V40.1899V40.1799Z" fill="#FFFFFF"/>
+            <path d="M193.42 40.3399H197V49.6499H199.2V40.3399H202.78V38.3999H193.42V40.3399Z" fill="#FFFFFF"/>
+            <path d="M213.1 38.3999H210.62L207.97 42.7599L205.31 38.3999H202.8L206.86 44.8499V49.6499H209.05V44.7599L213.1 38.3999Z" fill="#FFFFFF"/>
+          </g>
+          <defs>
+            <clipPath id="clip0_2545_1297">
+              <rect width="213.1" height="49.82" fill="white"/>
+            </clipPath>
+          </defs>
+        </svg>
+      </div>
+      <a class="footer__link" href="#">Career</a>
+      <a class="footer__link" href="#">Contact Us</a>
+    </div>
+
+    <div class="footer__bottom">
+      <div class="footer__links">
+        <div class="footer__social">
+          <a href="https://www.facebook.com/AllyLogisticProperty" target="_blank" rel="noopener">Facebook</a>
+          <a href="https://www.youtube.com/user/ALP2015"          target="_blank" rel="noopener">YouTube</a>
+          <a href="https://www.linkedin.com/company/ally-logistic-property" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+        <div class="footer__policy">
+          <span>Privacy Policy</span>
+          <span>Information Security Policy</span>
+        </div>
+      </div>
+      <div class="footer__copy">Ally Logistic Property © 2026</div>
+    </div>
+  </footer>
+
+
+  <script>
+    /* ══════════════════════════════════════════════════════════
+       Hero V2 — intro 動畫順序
+       t=0      頁面載入,影片 autoplay (但 opacity 0)
+       t=200    LEADING 淡入 (0.5s)
+       t=600    黃底 scaleX 0→1 (0.55s)
+       t=1150   INDUSTRY-LEVEL CHANGE 黑字淡入 (0.4s)
+       t=300    (parallel) 影片 fade-in 開始 (1.2s)
+       t=1800   暫停鈕淡入 (0.5s)
+    ══════════════════════════════════════════════════════════ */
+    (function heroV2() {
+      const banner = document.getElementById('banner-v2');
+      const video  = document.getElementById('banner-v2-video');
+      const pauseBtn = document.getElementById('banner-v2-pause');
+      if (!banner) return;
+
+      const wait = (ms, fn) => setTimeout(fn, ms);
+
+      function playIntro() {
+        wait(200,  () => banner.classList.add('is-line1-in'));
+        wait(300,  () => banner.classList.add('is-video-in'));
+        wait(600,  () => banner.classList.add('is-hl-in'));
+        wait(1150, () => banner.classList.add('is-line2-in'));
+        wait(1800, () => banner.classList.add('is-pause-in'));
+      }
+
+      // 等字型載入完再播,避免 LEADING 出現後才換字體閃一下
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(playIntro);
+      } else {
+        playIntro();
+      }
+
+      // 暫停 / 播放
+      if (pauseBtn && video) {
+        pauseBtn.addEventListener('click', () => {
+          if (video.paused) {
+            video.play();
+            banner.classList.remove('is-paused');
+            pauseBtn.setAttribute('aria-label', 'Pause hero video');
+          } else {
+            video.pause();
+            banner.classList.add('is-paused');
+            pauseBtn.setAttribute('aria-label', 'Play hero video');
+          }
+        });
+      }
+    })();
+  </script>
+
+  <script src="scripts/main.js"></script>
+</body>
+</html>
