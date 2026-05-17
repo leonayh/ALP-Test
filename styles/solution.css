@@ -206,31 +206,6 @@
   animation-delay: var(--stagger);
 }
 
-/* ── Gray-100 遮罩：2px 線期間覆蓋照片，向下展開時淡出 ──
-   z-index 1 = 照片之上、label(z:2) 之下
-   animation-fill-mode: both → backwards 讓 stagger delay 期間遮罩已顯示，
-                                forwards  讓動畫結束後遮罩保持透明 */
-.solution__mask {
-  position: absolute;
-  inset: 0;
-  background: var(--clr-secondary-20);  /* gray-100 #f5f5f5 */
-  z-index: 1;
-  opacity: 0;
-  pointer-events: none;
-}
-
-@keyframes solutionMaskFade {
-  0%   { opacity: 1; }  /* phase A 開始：遮罩不透明 */
-  70%  { opacity: 1; }  /* phase B 結束：遮罩維持不透明 */
-  100% { opacity: 0; }  /* phase C 結束：遮罩全透明，全彩照片顯現 */
-}
-
-.solution__card.is-revealed .solution__mask {
-  animation: solutionCardReveal 1.6s var(--ease-out) both,
-             solutionMaskFade   1.6s var(--ease-out) both;
-  animation-delay: var(--stagger), var(--stagger);
-}
-
 /* label 在動畫接近完成時才淡入
    時序：stagger + 1.6s 開始（圖片縱向展開到一半時） */
 .solution__card-label {

@@ -80,8 +80,9 @@
   .kpi__number { font-size: 56px; }
   .kpi__plus { font-size: 22px; }
 
-  /* Highlights */
+  /* Highlights (per latest Figma node 243:7231 — 3-item list at top-left) */
   .highlights { height: auto; }
+  .highlights__sticky { height: auto; }
   .highlights__slide {
     position: relative;
     top: auto;
@@ -89,27 +90,21 @@
     opacity: 1;
     margin-bottom: 8px;
   }
-  .highlights__slide .highlights__title {
+  .highlights__slide .highlights__title-list {
     opacity: 1;
-    transform: translateY(-50%);
+    transform: none;
     left: 24px;
     right: 24px;
-    gap: 12px;
-  }
-  .highlights__slide .highlights__gradient { transform: translateX(0); }
-  .highlights__slide .highlights__bg { transform: scale(1); }
-  .highlights__title-main { font-size: 24px; }
-  .highlights__title-sub  { font-size: 14px; }
-  .highlights__progress {
-    top: auto;
-    bottom: 24px;
-    transform: none;
-    right: 20px;
     width: auto;
-    gap: 8px;
+    max-width: none;
+    top: 40px;
+    gap: 16px;
   }
-  .highlights__slide:not(:first-child) .highlights__progress { display: none; }
-  .highlights__prog-label { font-size: 13px; }
+  .highlights__slide .highlights__bg { transform: scale(1); }
+  /* mobile bar 維持 stretch 行為,不需 hardcode 高度 */
+  .hl-item__label { font-size: 28px; line-height: 36px; }
+  .hl-item__label--sm { font-size: 15px; line-height: 22px; }
+  .hl-item__desc { font-size: 14px; line-height: 20px; }
 
   /* Solution（layout 已在 1024 處理，這裡只縮 padding/間距/卡片高） */
   .solution { padding: 0 20px; }

@@ -55,7 +55,6 @@ const isMobile = () => window.innerWidth <= 768;
       scale = Math.min(w / BASE_W, MAX_SCALE);
     }
     document.body.style.zoom = (scale === 1) ? '' : String(scale);
-    document.documentElement.style.setProperty('--zoom', scale);
   }
 
   applyScale();
@@ -275,15 +274,15 @@ const isMobile = () => window.innerWidth <= 768;
    ④ HIGHLIGHTS — sticky slides (comment #4)
 ══════════════════════════════════════════════════════════ */
 (function highlightsModule() {
-  const section   = document.getElementById('section-highlights');
-  const slides    = [0, 1, 2].map(i => document.getElementById('hl-slide-' + i));
-  const progItems = document.querySelectorAll('#section-highlights .highlights__prog-item');
+  const section = document.getElementById('section-highlights');
+  const slides  = [0, 1, 2].map(i => document.getElementById('hl-slide-' + i));
+  /* 共用一份 title-list,3 個 item 各自切換 is-active 來做變形動畫 */
+  const titleItems = section
+    ? section.querySelectorAll('.highlights__title-list .hl-item[data-slide]')
+    : [];
   if (!section || !slides[0]) return;
 
-  const TOTAL = slides.length;
-  let currentIdx  = -1;
-  let isThrottled = false;
-
+  let currentIdx = -1;
   function setActive(idx) {
     if (idx === currentIdx) return;
     const prev = currentIdx;
@@ -291,48 +290,45 @@ const isMobile = () => window.innerWidth <= 768;
     slides.forEach((s, i) => {
       if (!s) return;
       s.classList.remove('is-active', 'is-prev');
-      if (i === idx)       s.classList.add('is-active');
+      if (i === idx)      s.classList.add('is-active');
       else if (i === prev) s.classList.add('is-prev');
     });
-    progItems.forEach((p, i) => p.classList.toggle('is-active', i === idx));
+    titleItems.forEach((t, i) => t.classList.toggle('is-active', i === idx));
   }
 
-  /* 共用：帶節流的換片邏輯（goingDown = 往下）
-     邊界時回傳 false → 呼叫端不攔截事件，讓頁面正常捲動 */
-  function tryAdvance(goingDown) {
-    if (goingDown  && currentIdx >= TOTAL - 1) return false;
-    if (!goingDown && currentIdx <= 0)         return false;
-    if (isThrottled) return true;   /* 已攔截，但節流中，吞掉這次 */
-    isThrottled = true;
-    setTimeout(() => { isThrottled = false; }, 800);
-    setActive(currentIdx + (goingDown ? 1 : -1));
-    return true;
+  function onScrollHl() {
+    if (isMobile()) {
+      setActive(0);
+      return;
+    }
+    const rect = section.getBoundingClientRect();
+    const vh   = window.innerHeight;
+    if (rect.top > 0)      { setActive(0); return; }
+    if (rect.bottom <= vh) { setActive(2); return; }
+    /* 切換門檻 = CSS --hl-step（預設 400px，約滑鼠 4 下）。 */
+    const stepPx = parseFloat(
+      getComputedStyle(section).getPropertyValue('--hl-step')
+    ) || 400;
+    const idx = Math.min(Math.floor(Math.abs(rect.top) / stepPx), 2);
+    setActive(idx);
   }
-
-  /* Wheel（桌機滾輪）：在邊界時放行，讓頁面繼續捲動 */
-  section.addEventListener('wheel', (e) => {
-    if (isMobile()) return;
-    if (tryAdvance(e.deltaY > 0)) e.preventDefault();
-  }, { passive: false });
-
-  /* Touch（平板 / 觸控螢幕）：swipe up/down 切片 */
-  let touchStartY = 0;
-  section.addEventListener('touchstart', (e) => {
-    touchStartY = e.touches[0].clientY;
-  }, { passive: true });
-  section.addEventListener('touchend', (e) => {
-    if (isMobile()) return;
-    const delta = touchStartY - e.changedTouches[0].clientY;
-    if (Math.abs(delta) >= 30) tryAdvance(delta > 0);
-  }, { passive: true });
 
   setActive(0);
+  window.addEventListener('scroll', onScrollHl, { passive: true });
+  window.addEventListener('resize', onScrollHl);
+  onScrollHl();
 
-  /* Progress bar 點擊直接跳轉 */
-  progItems.forEach(item => {
+  /* 點 inactive item 跳到對應 slide */
+  titleItems.forEach(item => {
     item.addEventListener('click', () => {
+      if (item.classList.contains('is-active')) return;
       const idx = parseInt(item.dataset.slide, 10);
-      if (!isNaN(idx)) setActive(idx);
+      if (isNaN(idx)) return;
+      const stepPx = parseFloat(
+        getComputedStyle(section).getPropertyValue('--hl-step')
+      ) || 400;
+      const offsetY = section.offsetTop + idx * stepPx + 10;
+      window.scrollTo({ top: offsetY, behavior: 'smooth' });
     });
   });
 })();

@@ -104,7 +104,7 @@
           <div class="menu-sub">
             <a class="menu-sub-link is-active" href="#">Smart Infrastructure</a>
             <a class="menu-sub-link" href="#">Automated operating system</a>
-            <a class="menu-sub-link" href="#">Business Solutions</a>
+            <a class="menu-sub-link" href="#">Business Models</a>
           </div>
         </div>
 
@@ -212,52 +212,46 @@
 
 
   <!-- ═══════════════════════════════════
-       HIGHLIGHTS / DNA (3 sticky slides)
+       HIGHLIGHTS / DNA (3 sticky slides, Figma node 243:7231)
+       title-list 共用一份固定在 sticky 上,切換時各 item 自己變形
   ═══════════════════════════════════ -->
   <section id="section-highlights" class="highlights">
    <div class="highlights__sticky">
 
-    <!-- Slide 0: SIMPLE — One-stop solutions -->
+    <!-- 背景圖層 (3 slides 切換) -->
     <div class="highlights__slide" id="hl-slide-0">
       <img class="highlights__bg" src="assets/images/hl-simple.jpg" alt="One-stop solutions" />
-      <div class="highlights__title">
-        <div class="highlights__title-main">One-stop solutions</div>
-        <div class="highlights__title-sub">to accelerate the shift to smarter warehousing and logistics</div>
-      </div>
     </div>
-
-    <!-- Slide 1: SMART — Automated warehousing -->
     <div class="highlights__slide" id="hl-slide-1">
       <img class="highlights__bg" src="assets/images/hl-smart.png" alt="Automated warehousing" />
-      <div class="highlights__title">
-        <div class="highlights__title-main">Automated warehousing</div>
-        <div class="highlights__title-sub">to help businesses allocate resources with greater precision</div>
-      </div>
     </div>
-
-    <!-- Slide 2: SUSTAINABLE — Low-carbon -->
     <div class="highlights__slide" id="hl-slide-2">
       <img class="highlights__bg" src="assets/images/hl-sustainable.png" alt="Low-carbon operations" />
-      <div class="highlights__title">
-        <div class="highlights__title-main">Low-carbon operations<br>and energy-integrated planning</div>
-        <div class="highlights__title-sub">for stronger long-term operational returns</div>
-      </div>
     </div>
 
-    <!-- Progress bar：保留在 sticky 外殼中，不屬於任何 slide，切換時常駐 -->
-    <div class="highlights__progress">
-      <div class="highlights__prog-item is-active" data-slide="0">
-        <span class="highlights__prog-label">Simple</span>
-        <div class="highlights__prog-line"></div>
-      </div>
-      <div class="highlights__prog-item" data-slide="1">
-        <span class="highlights__prog-label">Smart</span>
-        <div class="highlights__prog-line"></div>
-      </div>
-      <div class="highlights__prog-item" data-slide="2">
-        <span class="highlights__prog-label">Sustainable</span>
-        <div class="highlights__prog-line"></div>
-      </div>
+    <!-- 共用 title-list:固定在畫面上,active item 動態變形 -->
+    <div class="highlights__title-list">
+      <button class="hl-item is-active" type="button" data-slide="0">
+        <span class="hl-item__bar"></span>
+        <span class="hl-item__body">
+          <span class="hl-item__label">Simple</span>
+          <span class="hl-item__desc">One-stop solutions to accelerate the shift to smarter warehousing and logistics</span>
+        </span>
+      </button>
+      <button class="hl-item" type="button" data-slide="1">
+        <span class="hl-item__bar"></span>
+        <span class="hl-item__body">
+          <span class="hl-item__label">Smart</span>
+          <span class="hl-item__desc">Automated warehousing to help businesses allocate resources with greater precision</span>
+        </span>
+      </button>
+      <button class="hl-item" type="button" data-slide="2">
+        <span class="hl-item__bar"></span>
+        <span class="hl-item__body">
+          <span class="hl-item__label">Sustainable</span>
+          <span class="hl-item__desc">Low-carbon operations and energy-integrated planning for stronger long-term operational returns</span>
+        </span>
+      </button>
     </div>
 
    </div>
@@ -329,12 +323,12 @@
           </div>
         </div>
 
-        <!-- Tab 3: Business Solutions -->
+        <!-- Tab 3: Business Models -->
         <div class="solution__tab">
           <div class="solution__tab-header">
             <div class="solution__tab-text">
               <p class="solution__subtitle reveal">For businesses ready to turn existing land and assets into growth engines.</p>
-              <p class="solution__heading reveal" style="transition-delay: 0.1s">Business Solutions</p>
+              <p class="solution__heading reveal" style="transition-delay: 0.1s">Business Models</p>
             </div>
           </div>
           <div class="solution__cards">

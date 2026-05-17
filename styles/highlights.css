@@ -1,19 +1,21 @@
 /* ═════════════════════════════════════════════════════════
-   HIGHLIGHTS / DNA (Figma node 2968:2141 → Section/Highlights 2613:1322)
-   h=720 w=full，3 slides (Simple/Smart/Sustainable)
-   動態 (comment #4):
-   - sticky 卡屏
-   - 上一張縮小淡出、下一張縮小進場
-   - bg_gradient 從左滑入
-   - title-1 淡入
+   HIGHLIGHTS / DNA (Figma node 243:7231 — latest)
+   3 sticky slides (Simple / Smart / Sustainable)
+   title-list 共用一份固定在 sticky 上,切換時 active item 變形:
+   - bar:4×4 方塊 → 4×90 直條
+   - label:18px → 40px
+   - desc:從下方 translateY 滑入並淡入,高度從 0 展開
+   滾動或點 inactive item 都會觸發 active 切換動畫
 ═════════════════════════════════════════════════════════ */
 
 .highlights {
   position: relative;
   width: 100%;
-  /* 視覺高度 = 恰好一屏：CSS px = 100vh / zoom，確保任何 zoom 下視覺上都不超過 viewport */
-  height: calc(100vh / var(--zoom, 1));
+  /* sticky 視覺區 (100vh - 80px) + 2 次切換 + 最後一張停留時間 = step × 3 */
+  --hl-step: 300px;
+  height: calc(100vh + var(--hl-step) * 3);
   background: var(--clr-secondary-10);
+  /* 整個 section 左右留白 20px (per Figma latest) */
   padding: 0 20px;
   box-sizing: border-box;
 }
@@ -22,11 +24,11 @@
   position: sticky;
   top: 20px;
   width: 100%;
-  /* 比 section 少 80px，為 header bar(64px) + breathing(16px) 留空間 */
-  height: calc(100vh / var(--zoom, 1) - 80px);
+  height: calc(100vh - 80px);
   overflow: hidden;
 }
 
+/* ─── 背景圖 slides ─── */
 .highlights__slide {
   position: absolute;
   inset: 0;
@@ -40,123 +42,137 @@
 .highlights__slide.is-active   { opacity: 1; z-index: 2; }
 .highlights__slide.is-prev     { opacity: 0; z-index: 1; }
 
-/* 背景圖：依 comment #4，新圖從中心「縮小→放大」進場 (0.85→1)，
-   舊圖淡出時同時收縮到中心 (1→0.85)。
-   20px 左右留白由 .highlights section padding 統一處理,圖片本身 fill 容器即可 */
+/* 背景圖 zoom 進場
+   起點 scale(1) 圖片剛好填滿容器,active 時 scale(1.06) 微放大;
+   任何時刻圖片都 ≥ slide,被 overflow:hidden 裁掉的部分當作矩形遮罩,
+   避免切換時看到照片縮小後的外形 */
 .highlights__bg {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(0.85);
+  transform: scale(1);
   transform-origin: center center;
   transition: transform 1.2s var(--ease-out);
   will-change: transform;
 }
-.highlights__slide.is-active .highlights__bg { transform: scale(1); }
-.highlights__slide.is-prev   .highlights__bg { transform: scale(0.85); }
+.highlights__slide.is-active .highlights__bg { transform: scale(1.06); }
+.highlights__slide.is-prev   .highlights__bg { transform: scale(1); }
 
-/* bg_gradient：從左滑入的黑色漸層（左側暗、右側透明） */
-.highlights__gradient {
+/* ═════════════════════════════════════════════════════════
+   Title list — 共用一份固定在 sticky 上 (left 80, top 80, w 480)
+═════════════════════════════════════════════════════════ */
+.highlights__title-list {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(0,0,0,0.75) 0%,
-    rgba(0,0,0,0.5) 35%,
-    rgba(0,0,0,0) 70%
-  );
-  transform: translateX(-100%);
-  transition: transform 0.95s var(--ease-out);
-  z-index: 2;
-}
-.highlights__slide.is-active .highlights__gradient { transform: translateX(0); }
-
-/* Title-1/2/3：上方淡入 (per Figma latest — title 移到 top-left,約距頂 18%)
-   原本垂直置中,現在改靠上以配合右下角 progress bar 的位置
-   width 800 統一三 slides 的版面寬度 */
-.highlights__title {
-  position: absolute;
-  left: 60px;
-  top: 10%;
-  width: 800px;
-  max-width: calc(100% - 160px);   /* 避免在窄螢幕爆出 */
-  z-index: 3;
-  color: var(--clr-secondary-10);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.8s var(--ease-out) 0.4s,
-              transform 0.8s var(--ease-out) 0.4s;
-}
-.highlights__slide.is-active .highlights__title {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.highlights__title-main {
-  font-family: var(--font-title);
-  font-size: var(--fs-h2);
-  font-weight: var(--fw-medium);
-  line-height: var(--lh-normal);
-  letter-spacing: var(--ls-h2);
-  text-transform: uppercase;
-  width: 100%;
-}
-.highlights__title-sub {
-  font-family: var(--font-title);
-  font-size: var(--fs-h3);
-  font-weight: var(--fw-regular);
-  line-height: var(--lh-normal);
-  letter-spacing: var(--ls-h3);
-  text-transform: capitalize;
-  width: 100%;
-}
-
-/* Progress bar：per Figma latest — 移到右下角 (bottom 60, right ≈ 60, w 160)
-   排版仍為 vertical stack of 3 items；item = label + 黃方塊指標 */
-.highlights__progress {
-  position: absolute;
-  bottom: 10%;
-  right: 60px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  left: 40px;
+  top: 48px;
+  width: 480px;
+  max-width: calc(100% - 80px);
   z-index: 5;
-  width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--clr-secondary-10);
 }
-.highlights__prog-item {
+
+/* 單一 item:button 本身只控 hover/click,實際視覺由 bar + body 組成
+   gap/padding 設 transition,讓 active 切換時 layout 變化也平滑 */
+.hl-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
+  background: transparent;
+  border: 0;
+  padding: 0;
   cursor: pointer;
-  height: 24px;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  font-family: inherit;
+  transition: gap 0.4s var(--ease-out),
+              padding 0.4s var(--ease-out);
 }
-/* 非 active = 淡黃 #FDFCCA；active = 黃 #FAF054（per Figma tokens） */
-.highlights__prog-label {
-  flex: 1;
-  text-align: right;
-  font-family: var(--font-title);
-  font-size: var(--fs-h3);
-  font-weight: var(--fw-regular);
-  line-height: var(--lh-normal);
-  letter-spacing: var(--ls-h3);
-  text-transform: uppercase;
-  color: var(--clr-primary-50);
-  transition: color var(--dur-fast);
+.hl-item.is-active {
+  cursor: default;
+  padding: 12px 0;
 }
-.highlights__prog-line {
-  width: 8px;
-  height: 8px;
-  background: var(--clr-primary-50);
+
+/* ─── Bar:4×4 方塊 → 4×90 直條 (active),height 平滑變化 ─── */
+.hl-item__bar {
+  width: 4px;
+  height: 4px;
+  background: var(--clr-secondary-10);   /* 統一白色 */
   flex-shrink: 0;
-  transition: height var(--dur-fast), background var(--dur-fast);
+  transition: height 2s var(--ease-out),
+              background 0.3s var(--ease-out),
+              margin 0.4s var(--ease-out);
 }
-.highlights__prog-item.is-active .highlights__prog-label { color: var(--clr-primary-70); }
-.highlights__prog-item.is-active .highlights__prog-line  {
-  height: 24px;
-  background: var(--clr-primary-70);
+.hl-item.is-active .hl-item__bar {
+  /* 撐滿 .hl-item content area,上內縮 12 / 下內縮 8 對齊文字 */
+  align-self: stretch;
+  height: auto;
+  margin: 12px 0 8px;
+  background: var(--clr-secondary-10);
 }
+
+/* ─── Body:label + desc ─── */
+.hl-item__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+/* Label 預設小字 (inactive),active 時 font-size 變大 — 全部統一白色 */
+.hl-item__label {
+  font-family: var(--font-title);
+  font-weight: var(--fw-regular);
+  text-transform: uppercase;
+  /* inactive (default) */
+  font-size: 18px;
+  line-height: 28px;
+  letter-spacing: 0.5px;
+  color: var(--clr-secondary-10);
+  transition: font-size 0.45s var(--ease-out),
+              line-height 0.45s var(--ease-out),
+              letter-spacing 0.45s var(--ease-out),
+              color 0.3s var(--ease-out);
+}
+.hl-item.is-active .hl-item__label {
+  font-size: 40px;
+  line-height: 54px;
+  letter-spacing: 1px;
+  color: var(--clr-secondary-10);
+}
+
+/* ─── Description:active 時從下方滑入 + 高度展開 ─── */
+.hl-item__desc {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: var(--fw-regular);
+  line-height: 24px;
+  letter-spacing: 0.5px;
+  color: var(--clr-secondary-10);
+  text-transform: capitalize;
+  /* 收合狀態:height 0、向下隱藏 */
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(8px);
+  overflow: hidden;
+  /* 收回時 desc 立刻消失避免 layout 抖動;展開時 max-height 先撐開、再做 fade/translate */
+  transition: max-height 0.5s var(--ease-out),
+              opacity    0.35s var(--ease-out),
+              transform  0.4s  var(--ease-out);
+}
+.hl-item.is-active .hl-item__desc {
+  max-height: 200px;
+  opacity: 1;
+  transform: translateY(0);
+  /* desc 在 active 切換後 0.5s 從下方滑入並淡入 (與 bar 同步進行) */
+  transition: max-height 0.5s var(--ease-out),
+              opacity    0.35s var(--ease-out) 0.5s,
+              transform  0.4s  var(--ease-out) 0.5s;
+}
+
