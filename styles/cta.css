@@ -64,6 +64,13 @@
   transition-delay: 0.25s;
 }
 
+/* 第二行黃底 wrap */
+.cta__hl-wrap {
+  position: relative;
+  display: inline-block;
+  padding: 2px 0;
+}
+
 /* 黃底覆蓋整句 */
 .cta__headline {
   position: relative;

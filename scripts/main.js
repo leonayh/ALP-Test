@@ -55,6 +55,7 @@ const isMobile = () => window.innerWidth <= 768;
       scale = Math.min(w / BASE_W, MAX_SCALE);
     }
     document.body.style.zoom = (scale === 1) ? '' : String(scale);
+    document.documentElement.style.setProperty('--body-zoom', String(scale));
   }
 
   applyScale();

@@ -151,7 +151,7 @@
 .hl-item__desc {
   font-family: var(--font-body);
   font-size: 16px;
-  font-weight: var(--fw-regular);
+  font-weight: var(--fw-medium);
   line-height: 24px;
   letter-spacing: 0.5px;
   color: var(--clr-secondary-10);

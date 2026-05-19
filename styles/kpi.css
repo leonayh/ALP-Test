@@ -96,7 +96,7 @@
   height: 100%;
   font-family: var(--font-body);
   font-size: var(--fs-body);
-  font-weight: var(--fw-regular);
+  font-weight: var(--fw-medium);
   line-height: var(--lh-normal);
   letter-spacing: var(--ls-body);
   color: var(--clr-secondary-90);
@@ -105,13 +105,13 @@
 /* Top label (SQM, USD) — uppercase abbreviation per Figma */
 .kpi__unit-top {
   font-size: var(--fs-body);
-  font-weight: var(--fw-regular);
+  font-weight: var(--fw-medium);
   text-transform: uppercase;
 }
 /* Bottom label — sentence case per Figma (countries / targeted, Logistics portfolio / area in Asia, etc.) */
 .kpi__unit-bot {
   font-size: var(--fs-body);
-  font-weight: var(--fw-regular);
+  font-weight: var(--fw-medium);
 }
 
 /* 3/4 欄縮短文字左 padding（Figma pl-10） */

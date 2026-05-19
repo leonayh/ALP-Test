@@ -11,6 +11,11 @@
 html {
   scroll-behavior: auto;
   -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+  scrollbar-width: none;       /* Firefox */
+}
+html::-webkit-scrollbar {
+  display: none;               /* Chrome / Safari / Edge */
 }
 
 body {
@@ -19,10 +24,9 @@ body {
   color: var(--clr-secondary-90);
   font-family: var(--font-body);
   font-size: var(--fs-body);
-  font-weight: var(--fw-regular);
+  font-weight: var(--fw-medium);
   line-height: var(--lh-normal);
   letter-spacing: var(--ls-body);
-  overflow-x: hidden;
 }
 
 img, svg, video {
